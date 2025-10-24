@@ -19,7 +19,6 @@
     "@capacitor/status-bar": "7.0.3",
     "@ionic/vue": "^8.0.0",
     "@ionic/vue-router": "^8.0.0",
-    "@mdi/font": "5.9.55",
     "axios": "^1.12.2",
     "ionicons": "^7.0.0",
     "roboto-fontface": "*",
