@@ -1,5 +1,5 @@
 import pool  from '../database/MySQLConexion.js';
-import queries from '../queries/CategoriasQuery.js';
+import queries from '../queries/EmpresasQuery.js';
  
 export default {
     async insertar(dato) {

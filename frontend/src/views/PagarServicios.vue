@@ -29,20 +29,16 @@
           <ion-list-header>
             <ion-label>Todos los negocios</ion-label>
           </ion-list-header>
-          <ion-item>
-            <ion-label>Pokémon Yellow</ion-label>
+
+          <ion-item v-for="empresa in empresas" :key="empresa.id_empresa">
+            <ion-label>
+              <h2>{{ empresa.nombre_empresa }}</h2>
+              <p>{{ empresa.nombre_categoria }}</p>
+            </ion-label>
           </ion-item>
-          <ion-item>
-            <ion-label>Mega Man X</ion-label>
-          </ion-item>
-          <ion-item>
-            <ion-label>The Legend of Zelda</ion-label>
-          </ion-item>
-          <ion-item>
-            <ion-label>Pac-Man</ion-label>
-          </ion-item>
-          <ion-item>
-            <ion-label>Super Mario World</ion-label>
+
+          <ion-item v-if="empresas.length === 0">
+            <ion-label>No hay empresas registradas</ion-label>
           </ion-item>
         </ion-list>
 
@@ -61,6 +57,19 @@
 
 <script setup lang="ts">
 import { IonButtons, IonButton, IonContent, IonHeader, IonMenuButton, IonPage, IonTitle, IonToolbar, IonList, IonListHeader, IonItem, IonLabel, IonSearchbar, IonSelect, IonSelectOption, IonGrid, IonRow, IonCol } from '@ionic/vue';
+import { ref, onMounted } from "vue";
+import EmpresaService from '@/api/EmpresaService';
+import Empresa from '@/interface/Empresa'
+const empresaService = new EmpresaService();
+const empresas = ref<Empresa[]>([]);
+
+onMounted(async () => {
+  const data = await empresaService.obtenerEmpresas();
+  if (data) {
+    empresas.value = data;
+  }
+});
+
 </script>
 
 <style scoped>
@@ -73,6 +82,10 @@ h1 {
   margin: 20px auto;
   color: #555;
   font-size: 25px;
+}
+
+#app {
+  
 }
 
 ion-searchbar {

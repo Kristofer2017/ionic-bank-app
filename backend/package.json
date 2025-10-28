@@ -1,8 +1,9 @@
 {
   "name": "express_server",
   "version": "1.0.0",
-  "description": "mi primer servidor rest",
+  "description": "express server",
   "main": "app",
+  "type": "module",
   "scripts": {
     "start": "node app.js",
     "test": "echo \"Error: no test specified\" && exit 1"

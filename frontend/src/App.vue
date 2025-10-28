@@ -46,8 +46,6 @@ import { homeOutline, swapHorizontalOutline, gridOutline, exitOutline } from 'io
 
 
 
-
-
 ion-menu.md ion-note {
   margin-bottom: 30px;
 }
