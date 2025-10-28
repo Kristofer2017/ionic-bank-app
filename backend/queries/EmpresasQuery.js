@@ -7,7 +7,7 @@ export default {
     },
  
     obtenerTodos() {
-        const sql = `SELECT Empresa.id_empresa, Empresa.nombre_empresa, Categoria.nombre_categoria FROM Empresa, Categoria WHERE Empresa.id_categoria = Categoria.id_categoria ORDER BY nombre_empresa ASC`;
+        const sql = `SELECT Empresa.*, Categoria.nombre_categoria FROM Empresa, Categoria WHERE Empresa.id_categoria = Categoria.id_categoria ORDER BY nombre_empresa ASC`;
 
         return sql;
     },

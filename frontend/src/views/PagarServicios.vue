@@ -12,18 +12,23 @@
       <h1>Selecciona el negocio</h1>
       <div class="contenedor">
         <ion-item class="barra-busqueda" lines="none">
-          <ion-searchbar placeholder="Buscar negocio"></ion-searchbar>
+          <ion-searchbar v-model="textoBusqueda" placeholder="Buscar negocio"></ion-searchbar>
         </ion-item>
         <ion-item class="lista-categorias" lines="none">
-          <div v-for="categoria in categorias" :key="categoria.id_categoria" >
-              <ion-chip class="chip">{{ categoria.nombre_categoria }}</ion-chip>
+          <div v-for="categoria in categoriasFiltradas" :key="categoria.id_categoria" >
+              <ion-chip class="chip">
+                <ion-label @click="seleccionarCategoria(categoria.nombre_categoria)">
+                  {{ categoria.nombre_categoria }}
+                </ion-label>
+                <ion-icon @click="limpiarFiltrado()" :icon="closeCircle"></ion-icon>
+              </ion-chip>
           </div>
         </ion-item>
         <ion-item class="todos-los-negocios" lines="none">
           <div>
           <h4>Todos los negocios</h4>
           <ion-list class="lista-empresas">
-            <ion-item v-for="empresa in empresas" :key="empresa.id_empresa">
+            <ion-item v-for="empresa in empresasFiltradas" :key="empresa.id_empresa">
               <ion-label>
                 <h2>{{ empresa.nombre_empresa }}</h2>
                 <p>{{ empresa.nombre_categoria }}</p>
@@ -49,8 +54,9 @@
 </template>
 
 <script setup lang="ts">
-import { IonButtons, IonButton, IonContent, IonHeader, IonMenuButton, IonPage, IonTitle, IonToolbar, IonList, IonItem, IonLabel, IonSearchbar, IonGrid, IonRow, IonCol, IonChip } from '@ionic/vue';
-import { ref, onMounted } from "vue";
+import { IonButtons, IonButton, IonContent, IonHeader, IonMenuButton, IonPage, IonTitle, IonToolbar, IonList, IonItem, IonLabel, IonSearchbar, IonGrid, IonRow, IonCol, IonChip, IonIcon } from '@ionic/vue';
+import { closeCircle } from 'ionicons/icons';
+import { ref, onMounted, computed } from "vue";
 import EmpresaService from '@/api/EmpresaService';
 import CategoriaService from '@/api/CategoriaService';
 import Empresa from '@/interface/Empresa';
@@ -61,6 +67,8 @@ const categoriaService = new CategoriaService();
 
 const empresas = ref<Empresa[]>([]);
 const categorias = ref<Categoria[]>([]);
+const categoriaSeleccionada = ref<string | null>(null)
+const textoBusqueda = ref<string>('')
 
 onMounted(async () => {
   const dataEmpresas = await empresaService.obtenerEmpresas();
@@ -70,6 +78,43 @@ onMounted(async () => {
   if (dataCategorias) categorias.value = dataCategorias;
 });
 
+const empresasFiltradas = computed(() => {
+  let resultado = empresas.value
+
+  // Filtro por categoría (si hay una seleccionada)
+  if (categoriaSeleccionada.value) {
+    resultado = resultado.filter(
+      (empresa) => empresa.nombre_categoria === categoriaSeleccionada.value
+    )
+  }
+
+  // Filtro por texto de búsqueda (nombre de la empresa)
+  if (textoBusqueda.value.trim() !== '') {
+    const texto = textoBusqueda.value.toLowerCase()
+    resultado = resultado.filter((empresa) =>
+      empresa.nombre_empresa.toLowerCase().includes(texto)
+    )
+  }
+
+  return resultado
+})
+
+const categoriasFiltradas = computed(() => {
+  if (!categoriaSeleccionada.value) {
+    return categorias.value
+  }
+  return categorias.value.filter(
+    (categoria) => categoria.nombre_categoria === categoriaSeleccionada.value
+  )
+})
+
+function seleccionarCategoria(categoria: string) {
+  categoriaSeleccionada.value = categoria;
+}
+
+function limpiarFiltrado() {
+  categoriaSeleccionada.value = null
+}
 </script>
 
 <style scoped>
@@ -115,9 +160,11 @@ h1 {
 
 .lista-categorias .chip {
   background: #1292ac;
-  color: #FAF9F6;
 }
 
+.lista-categorias .chip > * {
+  color: #FAF9F6;
+}
 .todos-los-negocios {
   --padding-start: 0;
   --inner-padding-end: 0;
@@ -134,7 +181,7 @@ h1 {
 }
 
 .lista-empresas {
-  max-height: 350px;
+  height: 350px;
   overflow-y: auto;
   border: 1px solid #ccc;
   border-radius: 8px;
