@@ -1,25 +1,21 @@
 import { createRouter, createWebHistory } from '@ionic/vue-router';
 import { RouteRecordRaw } from 'vue-router';
-import LoginPage from '../views/LoginPage.vue';
-import RegisterPage from '../views/RegisterPage.vue';
-import HomePage from '../views/HomePage.vue';
-import TransferPage from '../views/TransferPage.vue';
-import ServicesPage from '../views/ServicesPage.vue';
-import TransferirFondos from '../views/TransferirFondos.vue';
-import RecargarCuenta from '../views/RecargarCuenta.vue';
-import PagarServicios from '../views/PagarServicios.vue';
-import MetodosPago from '../views/MetodosPago.vue';
 import LayoutTabs from '../layouts/LayoutTabs.vue';
 import LayoutSidebar from '../layouts/LayoutSidebar.vue';
+import LoginPage from '../pages/login/LoginPage.vue';
+import RegisterPage from '../pages/login/RegisterPage.vue';
+import HomePage from '../pages/principales/HomePage.vue';
+import TransferPage from '../pages/principales/TransferPage.vue';
+import ServicesPage from '../pages/principales/ServicesPage.vue';
+import TransferirFondos from '../pages/transferir/TransferirFondos.vue';
+import RecargarCuenta from '../pages/transferir/RecargarCuenta.vue';
+import PagarServicios from '../pages/servicios/PagarServicios.vue';
+import MetodosPago from '../pages/servicios/MetodosPago.vue';
 
 const routes: Array<RouteRecordRaw> = [
   { path: '/', redirect: '/login' },
-
-  // Routes without Layout
   { path: '/login', component: LoginPage },
   { path: '/register', component: RegisterPage },
-
-  // Layout Sidebar + Tabs
   { path: '/',
     component: LayoutTabs,
     children: [
@@ -28,8 +24,6 @@ const routes: Array<RouteRecordRaw> = [
       { path: 'services', component: ServicesPage },
     ],
   },
-  
-  // Layout Sidebar Only
   { path: '/transfer',
     component: LayoutSidebar,
     children: [

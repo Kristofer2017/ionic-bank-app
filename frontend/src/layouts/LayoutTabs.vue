@@ -1,6 +1,6 @@
 <template>
   <ion-page>
-    <ion-split-pane when="md" content-id="main-content">
+    <ion-split-pane content-id="main-content">
       <!-- Sidebar -->
       <ion-menu content-id="main-content">
         <ion-content class="contenido-lateral">
@@ -8,18 +8,24 @@
             <ion-item lines="full" class="img-container">
               <img src="../assets/banco-logo-alt.png" alt="logo banca">
             </ion-item>
+            <ion-menu-toggle :auto-hide="true">
             <ion-item router-link="/home" lines="full">
               <ion-icon slot="start" :md="homeOutline"></ion-icon>
               <ion-label>Inicio</ion-label>
             </ion-item>
+            </ion-menu-toggle>
+            <ion-menu-toggle :auto-hide="true">
             <ion-item router-link="/transfer" lines="full">
               <ion-icon slot="start" :md="swapHorizontalOutline"></ion-icon>
               <ion-label>Transferencias</ion-label>
             </ion-item>
+            </ion-menu-toggle>
+            <ion-menu-toggle :auto-hide="true">
             <ion-item router-link="/services" lines="full">
               <ion-icon slot="start" :md="gridOutline"></ion-icon>
               <ion-label>Servicios</ion-label>
             </ion-item>
+            </ion-menu-toggle>
             <ion-item class="logout-btn" lines="none">
               <ion-button shape="round">
                 <ion-icon slot="end" :icon="exitOutline"></ion-icon>
@@ -57,7 +63,7 @@
 </template>
 
 <script setup lang="ts">
-import { IonPage, IonSplitPane, IonMenu, IonContent, IonList, IonItem, IonTabs, IonRouterOutlet, IonTabBar, IonTabButton, IonIcon, IonLabel, IonButton } from '@ionic/vue';
+import { IonPage, IonSplitPane, IonMenu, IonMenuToggle, IonContent, IonList, IonItem, IonTabs, IonRouterOutlet, IonTabBar, IonTabButton, IonIcon, IonLabel, IonButton } from '@ionic/vue';
 import { homeOutline, swapHorizontalOutline, gridOutline, exitOutline } from 'ionicons/icons';
 </script>
 
@@ -77,7 +83,7 @@ ion-content, ion-toolbar, ion-item {
   border-radius: 10px;
 }
 
-.lista-links > * {
+.lista-links ion-item {
   --background: #fff;
 }
 

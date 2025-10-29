@@ -2,6 +2,9 @@
   <ion-page>
     <ion-header>
       <ion-toolbar>
+        <ion-buttons slot="start">
+          <ion-menu-button color="dark"></ion-menu-button>
+        </ion-buttons>
         <ion-title>Transferir a destino</ion-title>
       </ion-toolbar>
     </ion-header>
@@ -13,7 +16,7 @@
 </template>
 
 <script setup lang="ts">
-import { IonPage, IonHeader, IonToolbar, IonTitle, IonContent } from '@ionic/vue';
+import { IonPage, IonHeader, IonToolbar, IonTitle, IonContent, IonButtons, IonMenuButton } from '@ionic/vue';
 
 </script>
 
