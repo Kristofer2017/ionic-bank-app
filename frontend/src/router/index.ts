@@ -9,53 +9,43 @@ import TransferirFondos from '../views/TransferirFondos.vue';
 import RecargarCuenta from '../views/RecargarCuenta.vue';
 import PagarServicios from '../views/PagarServicios.vue';
 import MetodosPago from '../views/MetodosPago.vue';
+import LayoutTabs from '../layouts/LayoutTabs.vue';
+import LayoutSidebar from '../layouts/LayoutSidebar.vue';
 
 const routes: Array<RouteRecordRaw> = [
-  {
-    path: '/',
-    redirect: '/login'
+  { path: '/', redirect: '/login' },
+
+  // Routes without Layout
+  { path: '/login', component: LoginPage },
+  { path: '/register', component: RegisterPage },
+
+  // Layout Sidebar + Tabs
+  { path: '/',
+    component: LayoutTabs,
+    children: [
+      { path: 'home', component: HomePage },
+      { path: 'transfer', component: TransferPage },
+      { path: 'services', component: ServicesPage },
+    ],
   },
-  {
-    path: '/login',
-    component: LoginPage
+  
+  // Layout Sidebar Only
+  { path: '/transfer',
+    component: LayoutSidebar,
+    children: [
+      { path: 'send', component: TransferirFondos },
+      { path: 'topup', component: RecargarCuenta },
+    ],
   },
-  {
-    path: '/register',
-    component: RegisterPage
-  },
-  {
-    path: '/home',
-    component: HomePage
-  },
-  {
-    path: '/transfer',
-    component: TransferPage
-  },
-  {
-    path: '/services',
-    component: ServicesPage
-  },
-  {
-    path: '/transferir-fondos',
-    component: TransferirFondos
-  },
-  {
-    path: '/recargar-cuenta',
-    component: RecargarCuenta
-  },
-  {
-    path: '/pagar-servicios',
-    component: PagarServicios
-  },
-  {
-    path: '/metodos-pago',
-    component: MetodosPago
+  { path: '/services',
+    component: LayoutSidebar,
+    children: [
+      { path: 'pay', component: PagarServicios },
+      { path: 'methods', component: MetodosPago },
+    ],
   },
 ]
 
-const router = createRouter({
-  history: createWebHistory(import.meta.env.BASE_URL),
-  routes
-})
+const router = createRouter({ history: createWebHistory(import.meta.env.BASE_URL), routes })
 
 export default router

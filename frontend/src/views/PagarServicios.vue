@@ -35,8 +35,8 @@
               </ion-label>
             </ion-item>
 
-            <ion-item v-if="empresas.length === 0">
-              <ion-label>No hay empresas registradas</ion-label>
+            <ion-item v-if="empresasFiltradas.length === 0" lines="none">
+              <ion-label>No se encontraron negocios</ion-label>
             </ion-item>
           </ion-list>
           </div>
@@ -44,8 +44,8 @@
 
         <ion-grid class="botones-formulario">
           <ion-row>
-            <ion-col><ion-button expand="full" shape="round" class="boton">Cancelar</ion-button></ion-col>
-            <ion-col><ion-button expand="full" shape="round" class="boton">Confirmar</ion-button></ion-col>
+            <ion-col><ion-button expand="full" shape="round" class="boton canc">Cancelar</ion-button></ion-col>
+            <ion-col><ion-button expand="full" shape="round" class="boton cont">Continuar</ion-button></ion-col>
           </ion-row>
         </ion-grid>
       </div>
@@ -196,11 +196,17 @@ h1 {
 }
 
 .botones-formulario .boton {
-  --background: #005F73;
   --color: #FAF9F6;
   --padding-top: 13px;
   --padding-bottom: 13px;
   font-weight: bold;
+}
+.botones-formulario .cont {
+  --background: #0f89a1;
+}
+
+.botones-formulario .canc {
+  --background: #0e7185;
 }
 
 .botones-formulario {
