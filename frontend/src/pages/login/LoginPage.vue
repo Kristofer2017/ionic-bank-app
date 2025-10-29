@@ -10,7 +10,7 @@
       <div class="login-container">
         <!-- Logo animado -->
         <div class="logo-container animate-fade">
-          <img src="../assets/banco-logo.png" alt="Logo del Banco" class="logo" />
+          <img src="@/assets/banco-logo.png" alt="Logo del Banco" class="logo" />
         </div>
 
         <!-- Tarjeta de login -->
