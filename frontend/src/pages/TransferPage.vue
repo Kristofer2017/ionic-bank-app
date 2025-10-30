@@ -14,12 +14,12 @@
         <ion-list-header class="titulo">
           <ion-label>Envía dinero a familiares o deposita dinero en tu cuenta mediante una tarjeta de crédito o débito.</ion-label>
         </ion-list-header>
-        <ion-item lines="full" :button="true" router-link="/transfer/send">
+        <ion-item lines="full" href="/transfer/send">
           <ion-icon :icon="peopleOutline" slot="start"></ion-icon>
           <ion-label>Transferir</ion-label>
           <ion-icon :icon="chevronForward" slot="end"></ion-icon>
         </ion-item>
-        <ion-item lines="none" :button="true" router-link="/transfer/topup">
+        <ion-item lines="none" href="/transfer/topup">
           <ion-icon :icon="bagAddOutline" slot="start"></ion-icon>
           <ion-label>Recargar</ion-label>
           <ion-icon :icon="chevronForward" slot="end"></ion-icon>

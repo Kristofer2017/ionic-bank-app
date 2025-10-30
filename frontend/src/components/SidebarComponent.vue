@@ -1,24 +1,24 @@
 <template>
   <ion-menu content-id="main-content">
-    <ion-content class="contenido-lateral">
+    <ion-content>
       <ion-list class="lista-links">
         <ion-item lines="full" class="img-container">
           <img src="@/assets/banco-logo-alt.png" alt="logo banca">
         </ion-item>
         <ion-menu-toggle :auto-hide="true">
-          <ion-item router-link="/home" lines="full">
+          <ion-item @click="router.push('/home')" lines="full">
             <ion-icon slot="start" :md="homeOutline"></ion-icon>
             <ion-label>Inicio</ion-label>
           </ion-item>
         </ion-menu-toggle>
         <ion-menu-toggle :auto-hide="true">
-          <ion-item router-link="/transfer" lines="full">
+          <ion-item @click="router.push('/transfer')" lines="full">
             <ion-icon slot="start" :md="swapHorizontalOutline"></ion-icon>
             <ion-label>Transferencias</ion-label>
           </ion-item>
         </ion-menu-toggle>
         <ion-menu-toggle :auto-hide="true">
-          <ion-item router-link="/services" lines="full">
+          <ion-item @click="router.push('/services')" lines="full">
             <ion-icon slot="start" :md="gridOutline"></ion-icon>
             <ion-label>Servicios</ion-label>
           </ion-item>
@@ -37,6 +37,8 @@
 <script setup lang="ts">
 import { IonMenu, IonMenuToggle, IonContent, IonList, IonItem, IonButton, IonIcon, IonLabel } from '@ionic/vue';
 import { homeOutline, swapHorizontalOutline, gridOutline, exitOutline } from 'ionicons/icons';
+import { useRouter } from 'vue-router';
+const router = useRouter();
 </script>
 
 <style scoped>

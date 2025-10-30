@@ -20,6 +20,7 @@
 <script setup lang="ts">
 import { IonTabBar, IonTabButton, IonIcon, IonLabel } from '@ionic/vue';
 import { homeOutline, swapHorizontalOutline, gridOutline } from 'ionicons/icons';
+
 </script>
 
 <style scoped>

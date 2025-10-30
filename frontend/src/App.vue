@@ -1,18 +1,14 @@
 <template>
   <ion-app>
-    <ion-split-pane content-id="main-content">
-      <SidebarMenu />
-      <ion-router-outlet id="main-content" />
-    </ion-split-pane>
+    <ion-router-outlet/>
   </ion-app>
 </template>
 
 <script setup lang="ts">
-import { IonSplitPane, IonRouterOutlet } from '@ionic/vue';
-import SidebarMenu from './components/SidebarComponent.vue';
+import { IonApp, IonRouterOutlet } from '@ionic/vue';
 </script>
 
-<style scoped>
+<style>
 ion-content, ion-toolbar, ion-item {
   --background: #FAF9F6;
 }

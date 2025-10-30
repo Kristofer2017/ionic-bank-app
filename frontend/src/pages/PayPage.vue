@@ -56,7 +56,7 @@
 <script setup lang="ts">
 import { IonButtons, IonButton, IonContent, IonHeader, IonMenuButton, IonPage, IonTitle, IonToolbar, IonList, IonItem, IonLabel, IonSearchbar, IonGrid, IonRow, IonCol, IonChip, IonIcon } from '@ionic/vue';
 import { closeCircle } from 'ionicons/icons';
-import { ref, onMounted, computed } from "vue";
+import { ref, onMounted, computed } from 'vue';
 import EmpresaService from '@/api/EmpresaService';
 import CategoriaService from '@/api/CategoriaService';
 import Empresa from '@/interface/Empresa';

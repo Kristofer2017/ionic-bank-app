@@ -14,12 +14,12 @@
           <ion-list-header class="titulo">
             <ion-label>Paga servicios en negocios disponibles o administra tus métodos de pago.</ion-label>
           </ion-list-header>
-          <ion-item lines="full" :button="true" router-link="/services/pay">
+          <ion-item lines="full" href="/services/pay">
             <ion-icon :icon="receiptOutline" slot="start"></ion-icon>
             <ion-label>Pagar Servicios</ion-label>
             <ion-icon :icon="chevronForward" slot="end"></ion-icon>
           </ion-item>
-          <ion-item lines="none" :button="true" router-link="/services/methods">
+          <ion-item lines="none" href="/services/methods">
             <ion-icon :icon="cardOutline" slot="start"></ion-icon>
             <ion-label>Métodos de pago</ion-label>
             <ion-icon :icon="chevronForward" slot="end"></ion-icon>

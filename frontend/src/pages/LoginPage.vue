@@ -64,30 +64,14 @@ import {
 } from "@ionic/vue";
 import { ref } from "vue";
 import { useRouter } from "vue-router";
-import axios from "axios";
+
 
 const username = ref("");
 const password = ref("");
 const router = useRouter();
 
 const loginUser = async () => {
-  try {
-    const response = await axios.post("http://localhost:3000/login", {
-      email: username.value,
-      password: password.value,
-    });
-
-    if (response.data.success) {
-      sessionStorage.setItem("usuario", username.value);
-      alert(response.data.message);
-      router.push("/home");
-    } else {
-      alert(response.data.message);
-    }
-  } catch (error: any) {
-    alert("Error al conectar con el servidor");
-    console.error(error);
-  }
+  router.push("/home");
 };
 </script>
 
