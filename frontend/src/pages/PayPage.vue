@@ -3,7 +3,7 @@
     <ion-header>
       <ion-toolbar>
         <ion-buttons slot="start">
-          <ion-menu-button color="dark"></ion-menu-button>
+          <ion-button @click="props.back()"><ion-icon slot="icon-only" :icon="arrowBack"/></ion-button>
         </ion-buttons>
         <ion-title>Pagar Servicios</ion-title>
       </ion-toolbar>
@@ -17,9 +17,7 @@
         <ion-item class="lista-categorias" lines="none">
           <div v-for="categoria in categoriasFiltradas" :key="categoria.id_categoria" >
               <ion-chip class="chip">
-                <ion-label @click="seleccionarCategoria(categoria.nombre_categoria)">
-                  {{ categoria.nombre_categoria }}
-                </ion-label>
+                <ion-label @click="seleccionarCategoria(categoria.nombre_categoria)">{{ categoria.nombre_categoria }}</ion-label>
                 <ion-icon @click="limpiarFiltrado()" :icon="closeCircle"></ion-icon>
               </ion-chip>
           </div>
@@ -29,46 +27,53 @@
           <h4>Todos los negocios</h4>
           <ion-list class="lista-empresas">
             <ion-item v-for="empresa in empresasFiltradas" :key="empresa.id_empresa">
-              <ion-label>
+              <ion-label @click="seleccionarEmpresa(empresa)">
                 <h2>{{ empresa.nombre_empresa }}</h2>
                 <p>{{ empresa.nombre_categoria }}</p>
               </ion-label>
+              <ion-icon v-if="empresaSeleccionada && empresaSeleccionada.id_empresa == empresa.id_empresa" color="success" slot="end" :icon="checkmarkCircle" />
             </ion-item>
-
             <ion-item v-if="empresasFiltradas.length === 0" lines="none">
               <ion-label>No se encontraron negocios</ion-label>
             </ion-item>
           </ion-list>
           </div>
         </ion-item>
-
         <ion-grid class="botones-formulario">
           <ion-row>
-            <ion-col><ion-button expand="full" shape="round" class="boton canc">Cancelar</ion-button></ion-col>
-            <ion-col><ion-button expand="full" shape="round" class="boton cont">Continuar</ion-button></ion-col>
+            <ion-col><ion-button expand="full" class="btn-cancelar" @click="cancelar">Cancelar</ion-button></ion-col>
+            <ion-col><ion-button expand="full" class="btn-continuar" @click="continuar">Continuar</ion-button></ion-col>
           </ion-row>
         </ion-grid>
       </div>
+      <ion-toast :is-open="isOpenToast" :message="msgToast" :duration="5000" @didDismiss="setOpenToast(false)" />
     </ion-content>
   </ion-page>
 </template>
 
 <script setup lang="ts">
-import { IonButtons, IonButton, IonContent, IonHeader, IonMenuButton, IonPage, IonTitle, IonToolbar, IonList, IonItem, IonLabel, IonSearchbar, IonGrid, IonRow, IonCol, IonChip, IonIcon } from '@ionic/vue';
-import { closeCircle } from 'ionicons/icons';
+import { modalController, IonHeader, IonToolbar, IonTitle, IonButtons ,IonButton, IonContent, IonPage, IonList, IonItem, IonLabel, IonSearchbar, IonGrid, IonRow, IonCol, IonChip, IonIcon, IonToast } from '@ionic/vue';
+import { closeCircle, checkmarkCircle, arrowBack } from 'ionicons/icons';
 import { ref, onMounted, computed } from 'vue';
+import { useEmpresaStore } from '@/stores/empresaStore';
+import PayServicePage from '@/pages/PayServicePage.vue';
 import EmpresaService from '@/api/EmpresaService';
 import CategoriaService from '@/api/CategoriaService';
 import Empresa from '@/interface/Empresa';
 import Categoria from '@/interface/Categoria';
+import ModalProps from '@/interface/ModalProps';
 
+const empresaStore = useEmpresaStore();
 const empresaService = new EmpresaService();
 const categoriaService = new CategoriaService();
-
 const empresas = ref<Empresa[]>([]);
 const categorias = ref<Categoria[]>([]);
-const categoriaSeleccionada = ref<string | null>(null)
-const textoBusqueda = ref<string>('')
+const categoriaSeleccionada = ref<string | null>(null);
+const empresaSeleccionada = ref<Empresa | null>(null);
+const textoBusqueda = ref<string>('');
+const isOpenToast = ref(false);
+const msgToast = ref("");
+const props = defineProps<ModalProps>();
 
 onMounted(async () => {
   const dataEmpresas = await empresaService.obtenerEmpresas();
@@ -79,24 +84,20 @@ onMounted(async () => {
 });
 
 const empresasFiltradas = computed(() => {
-  let resultado = empresas.value
+  let resultado = empresas.value;
 
-  // Filtro por categoría (si hay una seleccionada)
   if (categoriaSeleccionada.value) {
-    resultado = resultado.filter(
+    resultado = resultado.filter( // Filtro por categoría
       (empresa) => empresa.nombre_categoria === categoriaSeleccionada.value
-    )
+    );
   }
-
-  // Filtro por texto de búsqueda (nombre de la empresa)
   if (textoBusqueda.value.trim() !== '') {
-    const texto = textoBusqueda.value.toLowerCase()
-    resultado = resultado.filter((empresa) =>
+    const texto = textoBusqueda.value.toLowerCase();
+    resultado = resultado.filter((empresa) => // Filtro por búsqueda
       empresa.nombre_empresa.toLowerCase().includes(texto)
-    )
+    );
   }
-
-  return resultado
+  return resultado;
 })
 
 const categoriasFiltradas = computed(() => {
@@ -108,17 +109,25 @@ const categoriasFiltradas = computed(() => {
   )
 })
 
-function seleccionarCategoria(categoria: string) {
-  categoriaSeleccionada.value = categoria;
+const continuar = () => {
+  if (!empresaSeleccionada.value) {
+    msgToast.value = "Debe seleccionar una empresa antes de continuar";
+    setOpenToast(true);
+    return;
+  }
+  empresaStore.setEmpresa(empresaSeleccionada.value);
+  props.nextPage(PayServicePage);
 }
 
-function limpiarFiltrado() {
-  categoriaSeleccionada.value = null
-}
+const cancelar = () => modalController.dismiss();
+const limpiarFiltrado = () => categoriaSeleccionada.value = null;
+const seleccionarCategoria = (categoria: string) => categoriaSeleccionada.value = categoria;
+const seleccionarEmpresa = (empresa: Empresa) => empresaSeleccionada.value = empresa;
+const setOpenToast = (state: boolean) => isOpenToast.value = state;
 </script>
 
 <style scoped>
-ion-content, ion-toolbar, ion-item {
+ion-item {
   --background: #FAF9F6;
 }
 
@@ -193,23 +202,21 @@ h1 {
 
 .botones-formulario {
   width: 100%;
+  padding: 0;
 }
 
-.botones-formulario .boton {
+.btn-continuar, .btn-cancelar {
   --color: #FAF9F6;
   --padding-top: 13px;
   --padding-bottom: 13px;
   font-weight: bold;
 }
-.botones-formulario .cont {
+
+.btn-continuar {
   --background: #0f89a1;
 }
 
-.botones-formulario .canc {
+.btn-cancelar {
   --background: #0e7185;
-}
-
-.botones-formulario {
-  padding: 0;
 }
 </style>

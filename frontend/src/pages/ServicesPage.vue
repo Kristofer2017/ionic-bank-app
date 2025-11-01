@@ -10,32 +10,43 @@
     </ion-header>
 
     <ion-content color="light">
-        <ion-list class="lista-opciones">
-          <ion-list-header class="titulo">
-            <ion-label>Paga servicios en negocios disponibles o administra tus métodos de pago.</ion-label>
-          </ion-list-header>
-          <ion-item lines="full" href="/services/pay">
-            <ion-icon :icon="receiptOutline" slot="start"></ion-icon>
-            <ion-label>Pagar Servicios</ion-label>
-            <ion-icon :icon="chevronForward" slot="end"></ion-icon>
-          </ion-item>
-          <ion-item lines="none" href="/services/methods">
-            <ion-icon :icon="cardOutline" slot="start"></ion-icon>
-            <ion-label>Métodos de pago</ion-label>
-            <ion-icon :icon="chevronForward" slot="end"></ion-icon>
-          </ion-item>
-        </ion-list>
+      <ion-list class="tarjeta">
+        <ion-list-header class="titulo">
+          <ion-label>Paga servicios en negocios disponibles o administra tus métodos de pago.</ion-label>
+        </ion-list-header>
+
+        <ion-item lines="full" @click="open(PayPage)">
+          <ion-icon :icon="receiptOutline" slot="start"></ion-icon>
+          <ion-label>Pagar servicios</ion-label>
+          <ion-icon :icon="chevronForward" slot="end"></ion-icon>
+        </ion-item>
+
+        <ion-item lines="none" @click="open(MethodsPage)">
+          <ion-icon :icon="cardOutline" slot="start"></ion-icon>
+          <ion-label>Métodos de pago</ion-label>
+          <ion-icon :icon="chevronForward" slot="end"></ion-icon>
+        </ion-item>
+      </ion-list>
+      
+      <ion-modal ref="modal" @will-present="onWillPresent">
+          <ion-nav ref="nav"></ion-nav>
+      </ion-modal>
     </ion-content>
   </ion-page>
 </template>
 
 <script setup lang="ts">
-import { IonPage, IonHeader, IonToolbar, IonTitle, IonContent, IonButtons, IonMenuButton, IonItem, IonIcon, IonLabel, IonList, IonListHeader } from '@ionic/vue';
+import { IonPage, IonHeader, IonToolbar, IonTitle, IonContent, IonButtons, IonMenuButton, IonItem, IonIcon, IonLabel, IonList, IonListHeader, IonModal, IonNav } from '@ionic/vue';
 import { receiptOutline, cardOutline, chevronForward } from 'ionicons/icons';
+import { useModal } from '@/composable/useModal';
+import MethodsPage from './MethodsPage.vue';
+import PayPage from './PayPage.vue';
+
+const { modal, nav, onWillPresent, open } = useModal();
 </script>
 
 <style scoped>
-.lista-opciones {
+.tarjeta {
   padding: 25px 15px;
   margin: 20px;
   border-radius: 10px;

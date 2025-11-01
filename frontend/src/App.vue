@@ -9,7 +9,7 @@ import { IonApp, IonRouterOutlet } from '@ionic/vue';
 </script>
 
 <style>
-ion-content, ion-toolbar, ion-item {
+ion-content, ion-toolbar {
   --background: #FAF9F6;
 }
 </style>

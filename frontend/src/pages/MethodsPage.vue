@@ -3,12 +3,11 @@
     <ion-header>
       <ion-toolbar>
         <ion-buttons slot="start">
-          <ion-menu-button color="dark"></ion-menu-button>
+          <ion-button @click="props.back()"><ion-icon slot="icon-only" :icon="arrowBack"/></ion-button>
         </ion-buttons>
-        <ion-title>Metodos de pago</ion-title>
+        <ion-title>Métodos de pago</ion-title>
       </ion-toolbar>
     </ion-header>
-
     <ion-content>
       
     </ion-content>
@@ -16,8 +15,11 @@
 </template>
 
 <script setup lang="ts">
-import { IonPage, IonHeader, IonToolbar, IonTitle, IonContent, IonButtons, IonMenuButton } from '@ionic/vue';
+import { IonPage, IonHeader, IonToolbar, IonButtons, IonButton, IonTitle, IonContent, IonIcon } from '@ionic/vue';
+import { arrowBack } from 'ionicons/icons';
+import ModalProps from '@/interface/ModalProps';
 
+const props = defineProps<ModalProps>();
 </script>
 
 <style scoped>
