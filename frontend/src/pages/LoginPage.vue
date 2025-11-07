@@ -8,43 +8,20 @@
 
     <ion-content :fullscreen="true" >
       <div class="login-container">
-        <!-- Logo animado -->
         <div class="logo-container animate-fade">
           <img src="@/assets/banco-logo.png" alt="Logo del Banco" class="logo" />
         </div>
-
-        <!-- Tarjeta de login -->
         <div class="login-card">
           <h2>Inicio de Sesión</h2>
           <p>Ingrese sus credenciales para continuar</p>
 
           <ion-item class="input-item">
-            <ion-input
-              v-model="username"
-              label="Usuario"
-              label-placement="floating"
-              placeholder="Ingrese su usuario"
-            ></ion-input>
+            <ion-input v-model="username" label="Usuario" label-placement="floating" placeholder="Ingrese su usuario" />
           </ion-item>
-
           <ion-item class="input-item">
-            <ion-input
-              v-model="password"
-              type="password"
-              label="Contraseña"
-              label-placement="floating"
-              placeholder="Ingrese su contraseña"
-            ></ion-input>
+            <ion-input v-model="password" type="password" label="Contraseña" label-placement="floating" placeholder="Ingrese su contraseña" />
           </ion-item>
-
-          <ion-button
-            expand="block"
-            shape="round"
-            class="btn-login"
-            @click="loginUser"
-          >
-            Iniciar Sesión
-          </ion-button>
+          <ion-button expand="block" shape="round" class="btn-login" @click="loginUser"> Iniciar Sesión</ion-button>
         </div>
       </div>
     </ion-content>
@@ -52,16 +29,7 @@
 </template>
 
 <script setup lang="ts">
-import {
-  IonPage,
-  IonHeader,
-  IonToolbar,
-  IonTitle,
-  IonContent,
-  IonInput,
-  IonItem,
-  IonButton,
-} from "@ionic/vue";
+import { IonPage, IonHeader, IonToolbar, IonTitle, IonContent, IonInput, IonItem, IonButton } from "@ionic/vue";
 import { ref } from "vue";
 import { useRouter } from "vue-router";
 
@@ -76,7 +44,6 @@ const loginUser = async () => {
 </script>
 
 <style scoped>
-/* Fondo con degradado rojo suave */
 .login-container {
   display: flex;
   flex-direction: column;
@@ -87,7 +54,6 @@ const loginUser = async () => {
   animation: gradientShift 8s ease infinite;
 }
 
-/* Tarjeta blanca con borde rojo */
 .login-card {
   background: #FAF9F6  ;
   width: 100%;
@@ -110,21 +76,17 @@ const loginUser = async () => {
   margin-bottom: 20px;
 }
 
-/* Inputs */
 .input-item {
-  --background: #  --background: #FAF9F6;
-; 
   margin-bottom: 15px;
-  --highlight-color-focused: #005F73 ;
+  --background: #  --background: #FAF9F6;
+  --highlight-color-focused: #005F73;
 }
-
 
 .logo {
   width: 260px;
   margin: 8vh 0 6vh;
 }
 
-/* Título superior */
 .titulo-superior {
   color: #005F73;
   font-weight: bold;
@@ -159,7 +121,6 @@ const loginUser = async () => {
   }
 }
 
-/* Botón */
 ion-button {
   margin-top: 30px;
   font-weight: bold;

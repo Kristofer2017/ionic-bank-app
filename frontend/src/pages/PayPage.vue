@@ -52,7 +52,7 @@
 </template>
 
 <script setup lang="ts">
-import { modalController, IonHeader, IonToolbar, IonTitle, IonButtons ,IonButton, IonContent, IonPage, IonList, IonItem, IonLabel, IonSearchbar, IonGrid, IonRow, IonCol, IonChip, IonIcon, IonToast } from '@ionic/vue';
+import { modalController, IonHeader, IonToolbar, IonTitle, IonButtons, IonButton, IonContent, IonPage, IonList, IonItem, IonLabel, IonSearchbar, IonGrid, IonRow, IonCol, IonChip, IonIcon, IonToast } from '@ionic/vue';
 import { closeCircle, checkmarkCircle, arrowBack } from 'ionicons/icons';
 import { ref, onMounted, computed } from 'vue';
 import { useEmpresaStore } from '@/stores/empresaStore';
@@ -116,6 +116,8 @@ const continuar = () => {
     return;
   }
   empresaStore.setEmpresa(empresaSeleccionada.value);
+  categoriaSeleccionada.value = null;
+  empresaSeleccionada.value = null;
   props.nextPage(PayServicePage);
 }
 
