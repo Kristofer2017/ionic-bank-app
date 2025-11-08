@@ -8,84 +8,61 @@
         <ion-title>Detalle del pago</ion-title>
       </ion-toolbar>
     </ion-header>
-    <IonContent :fullscreen="true" class="form-wrapper">
+    <ion-content>
       <div class="form-container">
         <h2 class="form-title">Agregar o editar método</h2>
 
         <div class="form-row">
-          <IonLabel class="label">Nombre del holder</IonLabel>
-          <IonInput class="input" placeholder="Ej. Juan Pérez" />
+          <ion-label class="label">Nombre del titular</ion-label>
+          <ion-input class="input" placeholder="Ej. Juan Pérez" />
         </div>
 
         <div class="form-row">
-          <IonLabel class="label">Número de tarjeta</IonLabel>
-          <IonInput class="input" type="number" placeholder="•••• •••• •••• ••••" />
+          <ion-label class="label">Número de tarjeta</ion-label>
+          <ion-input class="input" type="password" placeholder="xxxx-xxxx-xxxx-xxxx" />
         </div>
 
         <div class="form-row">
-          <IonLabel class="label">Fecha de expiración</IonLabel>
+          <ion-label class="label">Fecha de expiración</ion-label>
           <div class="input-with-icon">
-            <IonInput class="input" type="date" placeholder="dd/mm/aaaa" />
+            <ion-input class="input" type="text" placeholder="mm/aa" />
           </div>
         </div>
 
         <div class="form-row">
-          <IonLabel class="label">CVV</IonLabel>
-          <IonInput class="input" type="number" placeholder="•••" />
-        </div>
-
-        <div class="form-row">
-          <IonLabel class="label">Tipo de tarjeta</IonLabel>
-          <IonRadioGroup class="radio-group" value="credito">
-            <IonItem lines="none">
-              <IonRadio value="credito" />
-              <IonLabel>Crédito</IonLabel>
-            </IonItem>
-            <IonItem lines="none">
-              <IonRadio value="debito" />
-              <IonLabel>Débito</IonLabel>
-            </IonItem>
-          </IonRadioGroup>
+          <ion-label class="label">CVV</ion-label>
+          <ion-input class="input" type="number" placeholder="xxx" />
         </div>
 
         <div class="boton-row">
-          <IonButton fill="outline" color="medium">Cancelar</IonButton>
-          <IonButton color="primary">Confirmar</IonButton>
+          <ion-button fill="outline" color="medium">Cancelar</ion-button>
+          <ion-button color="primary">Confirmar</ion-button>
         </div>
       </div>
-    </IonContent>
+    </ion-content>
   </IonPage>
 </template>
 
 <script setup lang="ts">
-import { IonPage, IonHeader, IonToolbar, IonTitle, IonButtons, IonButton, IonContent, IonLabel, IonInput, IonRadio, IonRadioGroup, IonItem } from '@ionic/vue'
+import { IonPage, IonHeader, IonToolbar, IonTitle, IonButtons, IonButton, IonContent, IonLabel, IonInput } from '@ionic/vue'
 import { arrowBack } from 'ionicons/icons';
 import ModalProps from '@/interface/ModalProps';
 const props = defineProps<ModalProps>();
 </script>
 
 <style scoped>
-.form-wrapper {
-  display: flex;
-  align-items: center;
-  padding: 2rem;
-  height: 100%;
-  box-sizing: border-box;
-}
+
 
 .form-container {
-    justify-self: center;  
-
+  margin: 1em;
   background-color: #FFFFFF;
   border-radius: 12px;
   padding: 2rem;
-  max-width: 500px;
-  width: 100%;
   box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
 }
 
 .form-title {
-  text-align: center;
+  
   font-size: 1.6rem;
   font-family: 'Segoe UI', 'Roboto', sans-serif;
   font-weight: 600;

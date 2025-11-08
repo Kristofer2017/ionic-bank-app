@@ -22,6 +22,7 @@
             <ion-input v-model="password" type="password" label="Contraseña" label-placement="floating" placeholder="Ingrese su contraseña" />
           </ion-item>
           <ion-button expand="block" shape="round" class="btn-login" @click="loginUser"> Iniciar Sesión</ion-button>
+          <ion-label router-link="/register">Crear Cuenta</ion-label>
         </div>
       </div>
     </ion-content>
@@ -29,7 +30,7 @@
 </template>
 
 <script setup lang="ts">
-import { IonPage, IonHeader, IonToolbar, IonTitle, IonContent, IonInput, IonItem, IonButton } from "@ionic/vue";
+import { IonPage, IonHeader, IonToolbar, IonTitle, IonContent, IonInput, IonItem, IonButton, IonLabel } from "@ionic/vue";
 import { ref } from "vue";
 import { useRouter } from "vue-router";
 
@@ -48,7 +49,7 @@ const loginUser = async () => {
   display: flex;
   flex-direction: column;
   align-items: center;
-  min-height: 96vh;
+  height: 100%;
   background: linear-gradient(135deg, #005F73, #0487a1, #53c3da);
   background-size: 150% 150%;
   animation: gradientShift 8s ease infinite;
@@ -76,6 +77,11 @@ const loginUser = async () => {
   margin-bottom: 20px;
 }
 
+.login-card ion-label {
+  text-decoration: underline;
+  color: #005F73;
+}
+
 .input-item {
   margin-bottom: 15px;
   --background: #  --background: #FAF9F6;
@@ -84,7 +90,7 @@ const loginUser = async () => {
 
 .logo {
   width: 260px;
-  margin: 8vh 0 6vh;
+  margin: 8vh 0 5.5vh;
 }
 
 .titulo-superior {
@@ -146,5 +152,6 @@ ion-button:hover {
 .btn-login {
   --padding-top: 17px;
   --padding-bottom: 17px;
+  margin-bottom: 15px;
 }
 </style>

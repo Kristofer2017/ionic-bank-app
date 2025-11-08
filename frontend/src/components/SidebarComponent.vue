@@ -24,7 +24,7 @@
           </ion-item>
         </ion-menu-toggle>
         <ion-item class="logout-btn" lines="none">
-          <ion-button shape="round">
+          <ion-button shape="round" router-link="/login">
             <ion-icon slot="end" :icon="exitOutline"></ion-icon>
             <ion-label>Cerrar Sesión</ion-label>
           </ion-button>
