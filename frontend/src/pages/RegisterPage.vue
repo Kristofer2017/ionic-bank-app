@@ -124,7 +124,7 @@ const loginUser = async () => {
   display: flex;
   flex-direction: column;
   align-items: center;
-  min-height: 96vh;
+  height: 100%;
   background: linear-gradient(135deg, #005F73, #0487a1, #53c3da);
   background-size: 150% 150%;
   animation: gradientShift 8s ease infinite;
@@ -134,7 +134,7 @@ const loginUser = async () => {
   background: #FAF9F6;
   width: 100%;
   max-width: 380px;
-  padding: 30px;
+  padding: 15px 30px 30px;
   border-radius: 20px;
   box-shadow: 0 8px 30px #006073b6;
   text-align: center;
@@ -165,7 +165,7 @@ const loginUser = async () => {
 
 .logo {
   width: 260px;
-  margin: 8vh 0 6vh;
+  margin: 3.5vh 0 1vh;
 }
 
 .titulo-superior {
@@ -233,8 +233,5 @@ ion-button:hover {
    margin-bottom: 15px;
 }
 
-.invalid {
-  border: 1px solid red;
-  --highlight-color-focused: red;
-}
+
 </style>
