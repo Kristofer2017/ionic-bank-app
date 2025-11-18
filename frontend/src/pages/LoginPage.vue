@@ -32,15 +32,23 @@
 <script setup lang="ts">
 import { IonPage, IonHeader, IonToolbar, IonTitle, IonContent, IonInput, IonItem, IonButton, IonLabel } from "@ionic/vue";
 import { ref } from "vue";
-import { useRouter } from "vue-router";
+//import { useRouter } from "vue-router";
+import UserService from "@/api/UserService";
 
-
+const userSerivce = new UserService();
 const username = ref("");
 const password = ref("");
-const router = useRouter();
+//const router = useRouter();
 
 const loginUser = async () => {
-  router.push("/home");
+  // Por hacer: validar que los campos no estén vacíos
+  
+  const success = await userSerivce.login(username.value, password.value)
+  if (success) {
+    alert('login exitoso')
+  } else {
+    alert('credenciales incorrectas')
+  }
 };
 </script>
 

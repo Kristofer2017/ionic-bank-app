@@ -3,19 +3,29 @@ import controller from '../controller/UsuariosController.js';
 
 const router = Router();
 
-router.get('/usuario/register', (req, res) => {
-    controller.obtenerUsuario().then((result) => {
+router.post('/usuario/register', (req, res) => {
+    const usuario = req.body;
+
+    controller.insertarUsuario(usuario).then((result) => {
         return res.json(result);
     }).catch((e) => {
-        return res.status(500).send(`Excepción: ${e.message}`);
+        return res.status(500).send({ message: e.message });
     });
 });
 
-router.get('/usuario/login', (req, res) => {
-    controller.obtenerUsuario().then((result) => {
-        return res.json(result);
+router.post('/usuario/login', (req, res) => {
+    const { user, password } = req.body;
+
+    controller.login(user, password).then(resp => {       
+        res.cookie('access_token', resp.token, {
+            httpOnly: true,
+            secure: false,
+            sameSite: "strict",
+            maxAge: 60 * 60 * 1000
+        }).send({ message: "Login correcto" })
+        
     }).catch((e) => {
-        return res.status(500).send(`Excepción: ${e.message}`);
+        return res.status(401).send({ message: e.message });
     });
 });
 

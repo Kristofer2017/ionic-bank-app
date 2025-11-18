@@ -36,7 +36,7 @@
             <ion-input v-model="password" type="password" label="Contraseña" label-placement="floating"
               placeholder="Ingrese su contraseña" />
           </ion-item>
-          <ion-button expand="block" shape="round" class="btn-login" @click="loginUser">Registrarse</ion-button>
+          <ion-button expand="block" shape="round" class="btn-login" @click="registerUser">Registrarse</ion-button>
           <ion-label router-link="/login">Ya tengo una cuenta</ion-label>
 
         </div>
@@ -53,12 +53,11 @@
 </template>
 
 <script setup lang="ts">
-import { IonPage, IonHeader, IonToolbar, IonTitle, IonContent, IonInput, IonItem, IonButton, IonLabel } from "@ionic/vue";
-import { ref } from "vue";
-import { useRouter } from "vue-router";
-import { computed } from "vue";
-import { IonAlert } from "@ionic/vue";
+import { IonPage, IonHeader, IonToolbar, IonTitle, IonContent, IonInput, IonItem, IonButton, IonLabel, IonAlert } from "@ionic/vue";
+import { ref, computed } from "vue";
+import UserService from "@/api/UserService";
 
+const userService = new UserService();
 const phoneRegex = /^\d{4}-\d{4}$/;
 const gmailRegex = /^[a-zA-Z0-9._%+-]+@gmail\.com$/;
 const duiRegex = /^\d{8}-\d$/;
@@ -81,11 +80,9 @@ const isGmailValid = computed(() => gmailRegex.test(gmail.value));
 const isDuiValid = computed(() => duiRegex.test(dui.value));
 const isUsernameValid = computed(() => usernameRegex.test(username.value));
 
-
-const router = useRouter();
-
-const loginUser = async () => {
-
+const registerUser = async () => {
+  // Para los errores, usar un toast en lugar de alerta
+  // La alerta solo se mostrara para confirmar si el registro fue exitoso o no
   showerrors.value = true;
 
   if (!name.value || !phone.value || !gmail.value || !dui.value || !username.value || !password.value) {
@@ -114,8 +111,20 @@ const loginUser = async () => {
     mostrarAlert.value = true;
     return;
   }
+  // Registro del usuario en el backend
+  const error = await userService.register({
+    nombre: name.value,
+    telefono: phone.value,
+    email: gmail.value,
+    dui: dui.value,
+    user: username.value,
+    password: password.value
+  });
 
-  router.push("/login");
+  mensajeAlert.value = error || "Registro Exitoso. Por favor inicie sesión.";
+  mostrarAlert.value = true;
+
+  // POR HACER: limpiar los campos y redirigir al login
 };
 </script>
 

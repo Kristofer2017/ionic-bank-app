@@ -7,7 +7,7 @@ export default {
     },
  
     obtenerTodos() {
-        const sql = `SELECT * FROM Categoria ORDER BY nombre_categoria ASC`;
+        const sql = `SELECT * FROM Categoria`;
         return sql;
     },
  

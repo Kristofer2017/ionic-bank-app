@@ -2,35 +2,22 @@ import { User } from "@/interface/User"
 import axios from "axios"
 
 export default class UserService {
-    async login(username: string, password: string): Promise<User | null> {
+    async login(user: string, password: string): Promise<boolean> {
         try {
-            const response = await axios.post('http://localhost:3000/login', { username, password });
-            const user: User = response.data
-
-            if (user) {
-                return user
-            } else {
-                throw "Usuario no encontrado"
-            }
-        } catch (error) {
-            console.error("Error en login: ", error)
-            return null
+            await axios.post('http://localhost:3000/usuario/login', { user, password }, { withCredentials: true });
+            return true;
+        } catch {
+            return false;
         }
     }
 
-    async getUser(): Promise<string | null> {
+    async register(usuario: User): Promise<string | null> {
         try {
-            const response = await axios.post('http://localhost:3000/get/user');
-            const username: string | null = response.data
-
-            if (username) {
-                return username
-            } else {
-                throw "Usuario no encontrado"
-            }
-        } catch (error) {
-            console.log(error);
-            return null
+            await axios.post('http://localhost:3000/usuario/register', usuario);
+            return null;
+        } catch (err: any) {
+            const msg = err.response?.data?.message;
+            return msg;
         }
     }
 } 
