@@ -41,21 +41,24 @@
 
         </div>
       </div>
-      <ion-alert
-      :is-open="mostrarAlert"
-      :message="mensajeAlert"
-      header="Error de Validación"
-      :buttons="['Aceptar']"
-      @didDismiss="mostrarAlert = false"
-      />
+      <ion-toast 
+      :is-open="mostrarToast" 
+      :message="mensajeToast"
+      :color="colorToast" 
+      duration="2000" 
+      @didDismiss="mostrarToast = false">
+      </ion-toast>
     </ion-content>
   </ion-page>
 </template>
 
 <script setup lang="ts">
-import { IonPage, IonHeader, IonToolbar, IonTitle, IonContent, IonInput, IonItem, IonButton, IonLabel, IonAlert } from "@ionic/vue";
+import { IonPage, IonHeader, IonToolbar, IonTitle, IonContent, IonInput, IonItem, IonButton, IonLabel, IonToast } from "@ionic/vue";
 import { ref, computed } from "vue";
 import UserService from "@/api/UserService";
+import { useRouter } from "vue-router";
+
+const router = useRouter();
 
 const userService = new UserService();
 const phoneRegex = /^\d{4}-\d{4}$/;
@@ -63,8 +66,9 @@ const gmailRegex = /^[a-zA-Z0-9._%+-]+@gmail\.com$/;
 const duiRegex = /^\d{8}-\d$/;
 const usernameRegex = /^[a-zA-Z]+\.[a-zA-Z]+$/;
 
-const mostrarAlert = ref(false);
-const mensajeAlert = ref("");
+const mostrarToast = ref(false);
+const mensajeToast = ref("");
+const colorToast = ref("");
 
 const name = ref("");
 const phone = ref("");
@@ -81,34 +85,37 @@ const isDuiValid = computed(() => duiRegex.test(dui.value));
 const isUsernameValid = computed(() => usernameRegex.test(username.value));
 
 const registerUser = async () => {
-  // Para los errores, usar un toast en lugar de alerta
-  // La alerta solo se mostrara para confirmar si el registro fue exitoso o no
   showerrors.value = true;
 
   if (!name.value || !phone.value || !gmail.value || !dui.value || !username.value || !password.value) {
-    mensajeAlert.value = "Por favor, complete todos los campos antes de continuar.";
-    mostrarAlert.value = true;
+    mensajeToast.value = "Por favor, complete todos los campos antes de continuar.";
+    colorToast.value = "danger";
+    mostrarToast.value = true;
     return;
   }
 
   if (!isPhoneValid.value) {
-    mensajeAlert.value = "Teléfono inválido. Use el formato ####-####";
-    mostrarAlert.value = true;
+    mensajeToast.value = "Teléfono inválido. Use el formato ####-####";
+    colorToast.value = "danger";
+    mostrarToast.value = true;
     return;
   }
   if (!isGmailValid.value) {
-    mensajeAlert.value = "Correo inválido. Solo se acepta @gmail.com";
-    mostrarAlert.value = true;
+    mensajeToast.value = "Correo inválido. Solo se acepta @gmail.com";
+    colorToast.value = "danger";
+    mostrarToast.value = true;
     return;
   }
   if (!isDuiValid.value) {
-    mensajeAlert.value = "DUI inválido. Use el formato ########-#";
-    mostrarAlert.value = true;
+    mensajeToast.value = "DUI inválido. Use el formato ########-#";
+    colorToast.value = "danger";
+    mostrarToast.value = true;
     return;
   }
   if (!isUsernameValid.value) {
-    mensajeAlert.value = "Usuario inválido. Use el formato nombre.apellido";
-    mostrarAlert.value = true;
+    mensajeToast.value = "Usuario inválido. Use el formato nombre.apellido";
+    colorToast.value = "danger";
+    mostrarToast.value = true;
     return;
   }
   // Registro del usuario en el backend
@@ -121,10 +128,28 @@ const registerUser = async () => {
     password: password.value
   });
 
-  mensajeAlert.value = error || "Registro Exitoso. Por favor inicie sesión.";
-  mostrarAlert.value = true;
+  if(error){
+    mensajeToast.value = error;
+    colorToast.value = "danger";
+  }else{ 
+    mensajeToast.value = "Registro Exitoso. Por favor inicie sesión.";
+    colorToast.value = "success";
+    limpiarcampos();
 
-  // POR HACER: limpiar los campos y redirigir al login
+    setTimeout(() => {
+      router.push('/login');
+    }, 2000);
+  }
+      mostrarToast.value = true;
+};
+
+const limpiarcampos = () => {
+  name.value = "";
+  phone.value = "";
+  gmail.value = "";
+  dui.value = "";
+  username.value = "";
+  password.value = "";
 };
 </script>
 
@@ -133,7 +158,7 @@ const registerUser = async () => {
   display: flex;
   flex-direction: column;
   align-items: center;
-  height: 100%;
+  height: 150%;
   background: linear-gradient(135deg, #005F73, #0487a1, #53c3da);
   background-size: 150% 150%;
   animation: gradientShift 8s ease infinite;
