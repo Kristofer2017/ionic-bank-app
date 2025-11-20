@@ -58,7 +58,7 @@ const loginUser = async () => {
   display: flex;
   flex-direction: column;
   align-items: center;
-  height: 100%;
+  height: 107%;
   background: linear-gradient(135deg, #005F73, #0487a1, #53c3da);
   background-size: 150% 150%;
   animation: gradientShift 8s ease infinite;
