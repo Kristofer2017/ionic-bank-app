@@ -2,24 +2,20 @@ import pool  from '../database/MySQLConexion.js';
 import query from '../queries/EmpresasQuery.js';
  
 export default {
-    async insertar(dato) {
-        const { sql, params } = query.insertar(dato);
-        const [ result ] = await pool.execute(sql, params);
-         
-        return result.insertId;
-    }, 
- 
     async obtenerTodos() {
         const sql = query.obtenerTodos();
         const [ result ] = await pool.query(sql);
+
+        const empresas = result.map(r => ({
+            id: r.empresa_id,
+            empresa: r.empresa,
+            estado: r.estado,
+            categoria: {
+                id: r.categoria_id,
+                categoria: r.categoria
+            }
+        }));
          
-        return result;
-    }, 
- 
-    async eliminarById(id) {
-        const sql = query.eliminarById(id);
-        const [ result ] = await pool.execute(sql);
-         
-        return result.affectedRows;
-    }
+        return empresas;
+    },
 }

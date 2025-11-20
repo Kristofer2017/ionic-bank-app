@@ -48,7 +48,7 @@ export default {
     },
 
     async login(user, password){
-        const sql= query.obtenerByUsuario(user);
+        const sql = query.obtenerByUsuario(user);
         const [ result ] = await pool.execute(sql);
 
         if (result.length === 0) {
@@ -60,7 +60,16 @@ export default {
         if (!passwordCoincide) {
             throw new Error("Credenciales incorrectas");
         }
+
+        delete usuarioEncontrado.password;
+
         const jwtToken = jwt.sign(usuarioEncontrado, process.env.JWT_KEY, { expiresIn: '1h' });
         return { token: jwtToken };
+    },
+
+    async obtenerCuenta(idUsuario) {
+        const sql = query.obtenerCuenta(idUsuario);
+        const [ result ] = await pool.execute(sql);
+        return result[0];
     }
 }

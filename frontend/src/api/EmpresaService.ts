@@ -1,20 +1,27 @@
 import Empresa from "@/interface/Empresa";
+import Categoria from "@/interface/Categoria"
 import Servicio from "@/interface/Servicio";
 import axios from "axios";
 
-export default class EmpresaService {
-    async obtenerEmpresas(): Promise<Empresa[] | null> {
+const EmpresaService = {
+    async obtenerEmpresas(): Promise<Empresa[]> {
         try {
             const response = await axios.get('http://localhost:3000/empresas/get/all');
-            const empresas: Empresa[] = response.data;
-
-            return empresas;
+            return response.data as Empresa[];
         } catch (error) {
             console.log(error);
-            return null;
+            return [];
         }
-    }
-
+    },
+    async obtenerCategorias(): Promise<Categoria[]> {
+        try {
+            const response = await axios.get('http://localhost:3000/categorias/get/all');
+            return response.data as Categoria[];
+        } catch (error) {
+            console.log(error);
+            return [];
+        }
+    },
     async obtenerServicios(idEmpresa: number): Promise<Servicio[] | null> {
         try {
             const response = await axios.get(`http://localhost:3000/servicios/get/${idEmpresa}`);
@@ -27,3 +34,5 @@ export default class EmpresaService {
         }
     }
 }
+
+export default EmpresaService;

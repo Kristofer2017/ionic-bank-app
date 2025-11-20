@@ -23,12 +23,14 @@
             <ion-label>Servicios</ion-label>
           </ion-item>
         </ion-menu-toggle>
-        <ion-item class="logout-btn" lines="none">
-          <ion-button shape="round" router-link="/login">
-            <ion-icon slot="end" :icon="exitOutline"></ion-icon>
-            <ion-label>Cerrar Sesión</ion-label>
-          </ion-button>
-        </ion-item>
+        <ion-menu-toggle :auto-hide="true">
+          <ion-item class="logout-btn" lines="none">
+            <ion-button shape="round" @click="logout">
+              <ion-icon slot="end" :icon="exitOutline"></ion-icon>
+              <ion-label>Cerrar Sesión</ion-label>
+            </ion-button>
+          </ion-item>
+        </ion-menu-toggle>
       </ion-list>
     </ion-content>
   </ion-menu>
@@ -38,7 +40,21 @@
 import { IonMenu, IonMenuToggle, IonContent, IonList, IonItem, IonButton, IonIcon, IonLabel } from '@ionic/vue';
 import { homeOutline, swapHorizontalOutline, gridOutline, exitOutline } from 'ionicons/icons';
 import { useRouter } from 'vue-router';
+import { useUsuarioStore } from '@/stores/usuarioStore';
+import UserService from '@/api/UserService';
+import { useEmpresaStore } from '@/stores/empresaStore';
+
 const router = useRouter();
+const usuarioStore = useUsuarioStore();
+const empresaStore = useEmpresaStore();
+
+const logout = async () => {
+  await UserService.logout();
+  usuarioStore.clearUsuario();
+  empresaStore.clearListaEmpresas();
+  empresaStore.clearCategorias();
+  router.push('/login');
+}
 </script>
 
 <style scoped>

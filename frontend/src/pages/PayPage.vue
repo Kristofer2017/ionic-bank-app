@@ -58,29 +58,31 @@ import { ref, onMounted, computed } from 'vue';
 import { useEmpresaStore } from '@/stores/empresaStore';
 import PayServicePage from '@/pages/PayServicePage.vue';
 import EmpresaService from '@/api/EmpresaService';
-import CategoriaService from '@/api/CategoriaService';
 import Empresa from '@/interface/Empresa';
 import Categoria from '@/interface/Categoria';
 import ModalProps from '@/interface/ModalProps';
 
-const empresaStore = useEmpresaStore();
-const empresaService = new EmpresaService();
-const categoriaService = new CategoriaService();
 const empresas = ref<Empresa[]>([]);
 const categorias = ref<Categoria[]>([]);
-const categoriaSeleccionada = ref<string | null>(null);
 const empresaSeleccionada = ref<Empresa | null>(null);
+const categoriaSeleccionada = ref<string | null>(null);
+const props = defineProps<ModalProps>();
+const empresaStore = useEmpresaStore();
 const textoBusqueda = ref<string>('');
 const isOpenToast = ref(false);
 const msgToast = ref("");
-const props = defineProps<ModalProps>();
 
 onMounted(async () => {
-  const dataEmpresas = await empresaService.obtenerEmpresas();
-  const dataCategorias = await categoriaService.obtenerCategorias();
+  if(empresaStore.empresas && empresaStore.categorias){
+    empresas.value = empresaStore.empresas;
+    categorias.value = empresaStore.categorias;
+    return;
+  }
+  const dataEmpresas = await EmpresaService.obtenerEmpresas();
+  const dataCategorias = await EmpresaService.obtenerCategorias();
 
-  if (dataEmpresas) empresas.value = dataEmpresas;
-  if (dataCategorias) categorias.value = dataCategorias;
+  if (dataEmpresas.length > 0) empresas.value = dataEmpresas;
+  if (dataCategorias.length > 0) categorias.value = dataCategorias;
 });
 
 const empresasFiltradas = computed(() => {
@@ -88,13 +90,13 @@ const empresasFiltradas = computed(() => {
 
   if (categoriaSeleccionada.value) {
     resultado = resultado.filter( // Filtro por categoría
-      (empresa) => empresa.nombre_categoria === categoriaSeleccionada.value
+      (empresa) => empresa.categoria.categoria === categoriaSeleccionada.value
     );
   }
   if (textoBusqueda.value.trim() !== '') {
     const texto = textoBusqueda.value.toLowerCase();
     resultado = resultado.filter((empresa) => // Filtro por búsqueda
-      empresa.nombre_empresa.toLowerCase().includes(texto)
+      empresa.empresa.toLowerCase().includes(texto)
     );
   }
   return resultado;
@@ -105,7 +107,7 @@ const categoriasFiltradas = computed(() => {
     return categorias.value
   }
   return categorias.value.filter(
-    (categoria) => categoria.nombre_categoria === categoriaSeleccionada.value
+    (categoria) => categoria.categoria === categoriaSeleccionada.value
   )
 })
 
@@ -115,7 +117,7 @@ const continuar = () => {
     setOpenToast(true);
     return;
   }
-  empresaStore.setEmpresa(empresaSeleccionada.value);
+  empresaStore.setEmpresaSelec(empresaSeleccionada.value);
   categoriaSeleccionada.value = null;
   empresaSeleccionada.value = null;
   props.nextPage(PayServicePage);

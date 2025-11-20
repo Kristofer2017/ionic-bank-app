@@ -17,11 +17,3 @@ import { IonPage, IonRouterOutlet, IonSplitPane, IonTabs } from '@ionic/vue';
 import SidebarComponent from '@/components/SidebarComponent.vue';
 import TabsComponent from '@/components/TabsComponent.vue';
 </script>
-
-<style>
-/*ion-toolbar {
-  --background: #097e96;
-  --color: #eee;
-  --padding-top: 9px;
-} */
-</style>

@@ -57,7 +57,6 @@ import { IonPage, IonHeader, IonToolbar, IonTitle, IonContent, IonInput, IonItem
 import { ref, computed } from "vue";
 import UserService from "@/api/UserService";
 
-const userService = new UserService();
 const phoneRegex = /^\d{4}-\d{4}$/;
 const gmailRegex = /^[a-zA-Z0-9._%+-]+@gmail\.com$/;
 const duiRegex = /^\d{8}-\d$/;
@@ -112,7 +111,7 @@ const registerUser = async () => {
     return;
   }
   // Registro del usuario en el backend
-  const error = await userService.register({
+  const error = await UserService.register({
     nombre: name.value,
     telefono: phone.value,
     email: gmail.value,

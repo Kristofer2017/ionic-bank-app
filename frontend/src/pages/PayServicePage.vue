@@ -90,11 +90,10 @@ import Servicio from '@/interface/Servicio';
 import Empresa from '@/interface/Empresa';
 
 const props = defineProps<ModalProps>();
-const empresaService = new EmpresaService;
 const empresaStore = useEmpresaStore();
 const servicios = ref<Servicio[]>([]);
 const empresa = ref<Empresa | null>(null);
-const servicioSeleccionado = ref<Servicio | null>(null);
+//const servicioSeleccionado = ref<Servicio | null>(null);
 const pagoManual = ref(false);
 const pagoSaldo = ref(false);
 const titulo1 = ref('');
@@ -102,7 +101,7 @@ const titulo1 = ref('');
 onMounted(async () => {
   empresa.value = empresaStore.empresaSeleccionada;
   const idEmpresa = empresa.value?.id_empresa;
-  const dataServicios = await empresaService.obtenerServicios(idEmpresa!);
+  const dataServicios = await EmpresaService.obtenerServicios(idEmpresa!);
 
   if (dataServicios) servicios.value = dataServicios;
   definirTitulo1();
