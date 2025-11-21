@@ -13,7 +13,6 @@ export const useEmpresaStore = defineStore('empresa', {
         setListaEmpresas(empresas: Empresa[]){ this.empresas = empresas },
         setCategorias(categorias: Categoria[]){ this.categorias = categorias },
         
-        // Borrar datos
         clearEmpresaSelec(){ this.empresaSeleccionada = null },
         clearListaEmpresas(){ this.empresas = [] },
         clearCategorias(){ this.categorias = [] },

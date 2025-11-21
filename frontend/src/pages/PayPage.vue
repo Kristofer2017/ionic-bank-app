@@ -15,9 +15,9 @@
           <ion-searchbar v-model="textoBusqueda" placeholder="Buscar negocio"></ion-searchbar>
         </ion-item>
         <ion-item class="lista-categorias" lines="none">
-          <div v-for="categoria in categoriasFiltradas" :key="categoria.id_categoria" >
+          <div v-for="categoria in categoriasFiltradas" :key="categoria.id" >
               <ion-chip class="chip">
-                <ion-label @click="seleccionarCategoria(categoria.nombre_categoria)">{{ categoria.nombre_categoria }}</ion-label>
+                <ion-label @click="seleccionarCategoria(categoria.nombre)">{{ categoria.nombre }}</ion-label>
                 <ion-icon @click="limpiarFiltrado()" :icon="closeCircle"></ion-icon>
               </ion-chip>
           </div>
@@ -26,12 +26,12 @@
           <div>
           <h4>Todos los negocios</h4>
           <ion-list class="lista-empresas">
-            <ion-item v-for="empresa in empresasFiltradas" :key="empresa.id_empresa">
+            <ion-item v-for="empresa in empresasFiltradas" :key="empresa.id">
               <ion-label @click="seleccionarEmpresa(empresa)">
-                <h2>{{ empresa.nombre_empresa }}</h2>
-                <p>{{ empresa.nombre_categoria }}</p>
+                <h2>{{ empresa.nombre }}</h2>
+                <p>{{ empresa.categoria.nombre }}</p>
               </ion-label>
-              <ion-icon v-if="empresaSeleccionada && empresaSeleccionada.id_empresa == empresa.id_empresa" color="success" slot="end" :icon="checkmarkCircle" />
+              <ion-icon v-if="empresaSeleccionada && empresaSeleccionada.id == empresa.id" color="success" slot="end" :icon="checkmarkCircle" />
             </ion-item>
             <ion-item v-if="empresasFiltradas.length === 0" lines="none">
               <ion-label>No se encontraron negocios</ion-label>
@@ -73,7 +73,7 @@ const isOpenToast = ref(false);
 const msgToast = ref("");
 
 onMounted(async () => {
-  if(empresaStore.empresas && empresaStore.categorias){
+  if(empresaStore.empresas.length > 0 && empresaStore.categorias.length > 0){
     empresas.value = empresaStore.empresas;
     categorias.value = empresaStore.categorias;
     return;
@@ -90,13 +90,13 @@ const empresasFiltradas = computed(() => {
 
   if (categoriaSeleccionada.value) {
     resultado = resultado.filter( // Filtro por categoría
-      (empresa) => empresa.categoria.categoria === categoriaSeleccionada.value
+      (empresa) => empresa.categoria.nombre === categoriaSeleccionada.value
     );
   }
   if (textoBusqueda.value.trim() !== '') {
     const texto = textoBusqueda.value.toLowerCase();
     resultado = resultado.filter((empresa) => // Filtro por búsqueda
-      empresa.empresa.toLowerCase().includes(texto)
+      empresa.nombre.toLowerCase().includes(texto)
     );
   }
   return resultado;
@@ -107,7 +107,7 @@ const categoriasFiltradas = computed(() => {
     return categorias.value
   }
   return categorias.value.filter(
-    (categoria) => categoria.categoria === categoriaSeleccionada.value
+    (categoria) => categoria.nombre === categoriaSeleccionada.value
   )
 })
 
@@ -118,8 +118,6 @@ const continuar = () => {
     return;
   }
   empresaStore.setEmpresaSelec(empresaSeleccionada.value);
-  categoriaSeleccionada.value = null;
-  empresaSeleccionada.value = null;
   props.nextPage(PayServicePage);
 }
 

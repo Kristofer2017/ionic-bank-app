@@ -22,10 +22,10 @@
             </ion-item>
           </div>
           <div v-else class="contenedor">
-            <ion-item v-for="servicio in servicios" :key="servicio.id_servicio" lines="none">
+            <ion-item v-for="servicio in servicios" :key="servicio.id" lines="none">
               <ion-icon :icon="listCircle" />
               <ion-label>
-                <h2>{{ servicio.nombre_servicio }}</h2>
+                <h2>{{ servicio.nombre }}</h2>
                 <p>Precio: ${{ servicio.precio }}</p>
               </ion-label>
               <ion-icon :icon="checkmarkCircle" slot="end" color="success"></ion-icon>
@@ -100,7 +100,7 @@ const titulo1 = ref('');
 
 onMounted(async () => {
   empresa.value = empresaStore.empresaSeleccionada;
-  const idEmpresa = empresa.value?.id_empresa;
+  const idEmpresa = empresa.value?.id;
   const dataServicios = await EmpresaService.obtenerServicios(idEmpresa!);
 
   if (dataServicios) servicios.value = dataServicios;

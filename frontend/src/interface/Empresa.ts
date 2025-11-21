@@ -2,7 +2,7 @@ import Categoria from "./Categoria";
 
 export default interface Empresa {
     id: number,
-    empresa: string,
+    nombre: string,
     estado: string,
     categoria: Categoria
 } 

@@ -8,11 +8,11 @@ export default {
 
         const empresas = result.map(r => ({
             id: r.empresa_id,
-            empresa: r.empresa,
+            nombre: r.nombre_empresa,
             estado: r.estado,
             categoria: {
                 id: r.categoria_id,
-                categoria: r.categoria
+                nombre: r.nombre_categoria
             }
         }));
          

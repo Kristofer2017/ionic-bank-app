@@ -6,158 +6,135 @@
       </ion-toolbar>
     </ion-header>
 
-    <ion-content :fullscreen="true">
-      <div class="login-container">
-        <div class="logo-container animate-fade">
-          <img src="@/assets/banco-logo.png" alt="Logo del Banco" class="logo" />
-        </div>
-        <div class="login-card">
-          <h2>Crear Cuenta</h2>
-          <p>Ingrese sus datos para continuar</p>
-          <ion-item :class="{'input-item': true, 'invalid': !name}">
-            <ion-input v-model="name" label="Nombre" label-placement="floating"
-              placeholder="Ingrese su nombre completo" />
-          </ion-item>
-          <ion-item :class="{'input-item': true, 'invalid': !isPhoneValid}">
-            <ion-input v-model="phone" label="Teléfono" label-placement="floating"
-              placeholder="####-####" />
-          </ion-item>
-          <ion-item :class="{'input-item': true, 'invalid': !isGmailValid}">
-            <ion-input v-model="gmail" label="Correo Electrónico" label-placement="floating" placeholder="Ingrese su Correo Electronico" />
-          </ion-item>
-          <ion-item :class="{'input-item': true, 'invalid': !isDuiValid}">
-            <ion-input v-model="dui" label="DUI" label-placement="floating" placeholder="########-#" />
-          </ion-item>
-          <ion-item :class="{'input-item': true, 'invalid': !isUsernameValid}">
-            <ion-input v-model="username" label="Usuario" label-placement="floating"
-              placeholder="nombre.apellido" />
-          </ion-item>
-          <ion-item :class="{'input-item': true, 'invalid': !password}">
-            <ion-input v-model="password" type="password" label="Contraseña" label-placement="floating"
-              placeholder="Ingrese su contraseña" />
-          </ion-item>
-          <ion-button expand="block" shape="round" class="btn-login" @click="registerUser">Registrarse</ion-button>
-          <ion-label router-link="/login">Ya tengo una cuenta</ion-label>
-
-        </div>
+    <div class="login-container">
+      <div class="login-card">
+        <h2>Crear Cuenta</h2>
+        <p>Ingrese sus datos para continuar</p>
+        <ion-item class="input-item">
+          <ion-input v-model="name" label="Nombre" label-placement="floating" type="text"
+            placeholder="Ingrese su nombre y apellido" />
+        </ion-item>
+        <ion-item class="input-item">
+          <ion-input v-model="phone" label="Teléfono" label-placement="floating" type="tel"
+            placeholder="0000-0000" />
+        </ion-item>
+        <ion-item class="input-item">
+          <ion-input v-model="email" label="Correo Electrónico" label-placement="floating" type="email"
+            placeholder="correo@ejemplo.com" />
+        </ion-item>
+        <ion-item class="input-item">
+          <ion-input v-model="dui" label="DUI" label-placement="floating" type="tel" 
+            placeholder="00000000-0" />
+        </ion-item>
+        <ion-item class="input-item">
+          <ion-input v-model="username" label="Usuario" label-placement="floating" type="text"
+            placeholder="nombre.apellido" />
+        </ion-item>
+        <ion-item class="input-item">
+          <ion-input v-model="password" label="Contraseña" label-placement="floating" type="password"
+            placeholder="Crea una contraseña" />
+        </ion-item>
+        <ion-button expand="block" shape="round" class="btn-login" @click="registerUser">Registrarse</ion-button>
+        <ion-label router-link="/login">Ya tengo una cuenta</ion-label>
       </div>
-      <ion-toast 
-      :is-open="mostrarToast" 
-      :message="mensajeToast"
-      :color="colorToast" 
-      duration="2000" 
-      @didDismiss="mostrarToast = false">
-      </ion-toast>
-    </ion-content>
+    </div>
+    <ion-toast :is-open="mostrarToast" :message="mensajeToast" :duration="2000"  @didDismiss="mostrarToast = false" color="light" />
+    <ion-alert :is-open="mostrarAlert" :message="mensajeAlert" :buttons="alertButtons" header="Información" />
   </ion-page>
 </template>
 
 <script setup lang="ts">
-import { IonPage, IonHeader, IonToolbar, IonTitle, IonContent, IonInput, IonItem, IonButton, IonLabel, IonToast } from "@ionic/vue";
-import { ref, computed } from "vue";
-import UserService from "@/api/UserService";
+import { IonPage, IonHeader, IonToolbar, IonTitle, IonInput, IonItem, IonButton, IonLabel, IonToast, IonAlert } from "@ionic/vue";
 import { useRouter } from "vue-router";
+import { ref } from "vue";
+import UserService from "@/api/UserService";
 
 const router = useRouter();
-
-const phoneRegex = /^\d{4}-\d{4}$/;
-const gmailRegex = /^[a-zA-Z0-9._%+-]+@gmail\.com$/;
-const duiRegex = /^\d{8}-\d$/;
-const usernameRegex = /^[a-zA-Z]+\.[a-zA-Z]+$/;
-
-const mostrarToast = ref(false);
-const mensajeToast = ref("");
-const colorToast = ref("");
-
 const name = ref("");
 const phone = ref("");
-const gmail = ref("");
+const email = ref("");
 const dui = ref("");
 const username = ref("");
 const password = ref("");
 
-const showerrors = ref(false);
+const phoneValid = () => /^\d{4}-\d{4}$/.test(phone.value);
+const emailValid = () => /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[A-Za-z]{2,}$/.test(email.value);
+const duiValid = () => /^\d{8}-\d$/.test(dui.value);
+const userValid = () => /^[a-zA-Z]+\.[a-zA-Z]+$/.test(username.value);
+const mostrar = (tipo: string, mensaje: string) => {
+  if (tipo === "toast") {
+    mensajeToast.value = mensaje;
+    mostrarToast.value = true;
+  } else if (tipo === "alert") {
+    mensajeAlert.value = mensaje;
+    mostrarAlert.value = true;
+  }
+}
 
-const isPhoneValid = computed(() => phoneRegex.test(phone.value));
-const isGmailValid = computed(() => gmailRegex.test(gmail.value));
-const isDuiValid = computed(() => duiRegex.test(dui.value));
-const isUsernameValid = computed(() => usernameRegex.test(username.value));
+const mostrarToast = ref(false);
+const mensajeToast = ref("");
+const mostrarAlert = ref(false);
+const mensajeAlert = ref("");
+const alertButtons = [{
+    text: 'Aceptar',
+    handler: () => {
+      setTimeout(() => { router.push('/login') }, 900);
+    }
+}];
 
 const registerUser = async () => {
-  showerrors.value = true;
+  let error = errorValidacion();
 
-  if (!name.value || !phone.value || !gmail.value || !dui.value || !username.value || !password.value) {
-    mensajeToast.value = "Por favor, complete todos los campos antes de continuar.";
-    colorToast.value = "danger";
-    mostrarToast.value = true;
+  if (error) {
+    mostrar('toast', error);
     return;
   }
 
-  if (!isPhoneValid.value) {
-    mensajeToast.value = "Teléfono inválido. Use el formato ####-####";
-    colorToast.value = "danger";
-    mostrarToast.value = true;
-    return;
-  }
-  if (!isGmailValid.value) {
-    mensajeToast.value = "Correo inválido. Solo se acepta @gmail.com";
-    colorToast.value = "danger";
-    mostrarToast.value = true;
-    return;
-  }
-  if (!isDuiValid.value) {
-    mensajeToast.value = "DUI inválido. Use el formato ########-#";
-    colorToast.value = "danger";
-    mostrarToast.value = true;
-    return;
-  }
-  if (!isUsernameValid.value) {
-    mensajeToast.value = "Usuario inválido. Use el formato nombre.apellido";
-    colorToast.value = "danger";
-    mostrarToast.value = true;
-    return;
-  }
-  // Registro del usuario en el backend
-  const error = await UserService.register({
+  error = await UserService.register({
     nombre: name.value,
     telefono: phone.value,
-    email: gmail.value,
+    email: email.value,
     dui: dui.value,
     user: username.value,
     password: password.value
   });
 
-  if(error){
-    mensajeToast.value = error;
-    colorToast.value = "danger";
-  }else{ 
-    mensajeToast.value = "Registro Exitoso. Por favor inicie sesión.";
-    colorToast.value = "success";
-    limpiarcampos();
-
-    setTimeout(() => {
-      router.push('/login');
-    }, 2000);
+  if (error) {
+    mostrar('toast', error);
+    return;
   }
-      mostrarToast.value = true;
-};
+
+  mostrar('alert', 'Registro Exitoso. Por favor inicie sesión.')
+  limpiarcampos();
+}
+
+const errorValidacion = () => {
+  if (!name.value || !phone.value || !email.value || !dui.value || !username.value || !password.value)
+    return "Por favor, complete todos los campos antes de continuar.";
+  if (!phoneValid()) return "Teléfono inválido. Use el formato solicitado.";
+  if (!emailValid()) return "Por favor, ingresa un correo válido.";
+  if (!duiValid()) return "DUI inválido. Use el formato solicitado.";
+  if (!userValid()) return "Usuario inválido. Use el formato nombre.apellido";
+  return null;
+}
 
 const limpiarcampos = () => {
   name.value = "";
   phone.value = "";
-  gmail.value = "";
+  email.value = "";
   dui.value = "";
   username.value = "";
   password.value = "";
-};
+}
 </script>
 
 <style scoped>
 .login-container {
+  min-height: 100%;
   display: flex;
-  flex-direction: column;
-  align-items: center;
-  height: 150%;
+  justify-content: center;
+  align-items: flex-start;
+  padding-top: 3.6em;
   background: linear-gradient(135deg, #005F73, #0487a1, #53c3da);
   background-size: 150% 150%;
   animation: gradientShift 8s ease infinite;
@@ -206,13 +183,23 @@ const limpiarcampos = () => {
   font-weight: bold;
 }
 
-/* Animación del logo */
+.btn-login {
+  --background: #01829c;
+  --background-hover: #005F73;
+  --background-activated: #005F73;
+  --color: white;
+  --padding-top: 17px;
+  --padding-bottom: 17px;
+  margin-top: 30px;
+  margin-bottom: 15px;
+  font-weight: bold;
+}
+
 @keyframes fadeInUp {
   0% {
     opacity: 0;
     transform: translateY(20px);
   }
-
   100% {
     opacity: 1;
     transform: translateY(0);
@@ -223,7 +210,6 @@ const limpiarcampos = () => {
   animation: fadeInUp 1s ease-out;
 }
 
-/* Animación suave del fondo */
 @keyframes gradientShift {
   0% {
     background-position: 0% 50%;
@@ -237,34 +223,4 @@ const limpiarcampos = () => {
     background-position: 0% 50%;
   }
 }
-
-ion-button {
-  margin-top: 30px;
-  font-weight: bold;
-  --background: #01829c;
-  --background-hover: #005F73;
-  --background-activated: #005F73;
-  --color: white;
-  transition: transform 0.2s ease;
-}
-
-.login-btn>* {
-  padding: 20PX;
-}
-
-ion-button:hover {
-  transform: scale(1.03);
-}
-
-.toolbar-custom {
-  --background: #FAF9F6;
-}
-
-.btn-login {
-  --padding-top: 17px;
-  --padding-bottom: 17px;
-   margin-bottom: 15px;
-}
-
-
 </style>

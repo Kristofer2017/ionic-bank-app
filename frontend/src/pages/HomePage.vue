@@ -14,7 +14,7 @@
         <ion-list-header>
           <ion-label>
             <h1>Bienvenido/a, {{ usuario?.nombre }}</h1>
-            <h2>Número de cuenta: {{ usuario?.cuenta.cuenta }}</h2>
+            <h2>Número de cuenta: {{ usuario?.cuenta.numero }}</h2>
           </ion-label>
         </ion-list-header>
       </ion-list>

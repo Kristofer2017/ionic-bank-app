@@ -6,31 +6,29 @@
       </ion-toolbar>
     </ion-header>
 
-    <ion-content :fullscreen="true" >
-      <div class="login-container">
-        <div class="logo-container animate-fade">
-          <img src="@/assets/banco-logo.png" alt="Logo del Banco" class="logo" />
-        </div>
-        <div class="login-card">
-          <h2>Inicio de Sesión</h2>
-          <p>Ingrese sus credenciales para continuar</p>
-
-          <ion-item class="input-item">
-            <ion-input v-model="username" label="Usuario" label-placement="floating" placeholder="Ingrese su usuario" />
-          </ion-item>
-          <ion-item class="input-item">
-            <ion-input v-model="password" type="password" label="Contraseña" label-placement="floating" placeholder="Ingrese su contraseña" />
-          </ion-item>
-          <ion-button expand="block" shape="round" class="btn-login" @click="loginUser"> Iniciar Sesión</ion-button>
-          <ion-label router-link="/register">Crear Cuenta</ion-label>
-        </div>
+    <div class="login-container">
+      <div class="animate-fade">
+        <img src="@/assets/banco-logo.png" alt="Logo del Banco" class="logo" />
       </div>
-    </ion-content>
+      <div class="login-card">
+        <h2>Inicio de Sesión</h2>
+        <p>Ingrese sus credenciales para continuar</p>
+        <ion-item class="input-item">
+          <ion-input v-model="username" label="Usuario" label-placement="floating" placeholder="Ingrese su usuario" />
+        </ion-item>
+        <ion-item class="input-item">
+          <ion-input v-model="password" type="password" label="Contraseña" label-placement="floating" placeholder="Ingrese su contraseña" />
+        </ion-item>
+        <ion-button expand="block" shape="round" class="btn-login" @click="loginUser">Iniciar Sesión</ion-button>
+        <ion-label router-link="/register">Crear Cuenta</ion-label>
+      </div>
+    </div>
+    <ion-toast :is-open="mostrarToast" :message="mensajeToast" :duration="2000"  @didDismiss="mostrarToast = false" color="light" />
   </ion-page>
 </template>
 
 <script setup lang="ts">
-import { IonPage, IonHeader, IonToolbar, IonTitle, IonContent, IonInput, IonItem, IonButton, IonLabel } from "@ionic/vue";
+import { IonPage, IonHeader, IonToolbar, IonTitle, IonInput, IonItem, IonButton, IonLabel, IonToast } from "@ionic/vue";
 import { ref } from "vue";
 import { useRouter } from "vue-router";
 import UserService from "@/api/UserService";
@@ -38,18 +36,27 @@ import UserService from "@/api/UserService";
 const username = ref("");
 const password = ref("");
 const router = useRouter();
+const mostrarToast = ref(false);
+const mensajeToast = ref("");
+const abrirToast = (mensaje: string) => {
+  mensajeToast.value = mensaje;
+  mostrarToast.value = true;
+}
 
 const loginUser = async () => {
-  // Por hacer: validar que los campos no estén vacíos
+  if (!username.value || !password.value){
+    abrirToast('Por favor, ingresa usuario y contraseña.');
+    return;
+  }
   const success = await UserService.login(username.value, password.value);
 
-  if (success) {
-    // Por hacer: vaciar los campos antes de redirigir
-    router.push('/home');
-  } else {
-    // Por hacer: toast para errores
-    alert('credenciales incorrectas')
+  if (!success) {
+    abrirToast('Credenciales incorrectas!');
+    return;
   }
+  username.value = "";
+  password.value = "";
+  router.push('/home');
 };
 </script>
 
@@ -58,7 +65,7 @@ const loginUser = async () => {
   display: flex;
   flex-direction: column;
   align-items: center;
-  height: 107%;
+  height: 100%;
   background: linear-gradient(135deg, #005F73, #0487a1, #53c3da);
   background-size: 150% 150%;
   animation: gradientShift 8s ease infinite;
@@ -107,7 +114,18 @@ const loginUser = async () => {
   font-weight: bold;
 }
 
-/* Animación del logo */
+.btn-login {
+  --background: #01829c;
+  --background-hover: #005F73;
+  --background-activated: #005F73;
+  --color: white;
+  --padding-top: 17px;
+  --padding-bottom: 17px;
+  margin-top: 30px;
+  margin-bottom: 15px;
+  font-weight: bold;
+}
+
 @keyframes fadeInUp {
   0% {
     opacity: 0;
@@ -123,7 +141,6 @@ const loginUser = async () => {
   animation: fadeInUp 1s ease-out;
 }
 
-/* Animación suave del fondo */
 @keyframes gradientShift {
   0% {
     background-position: 0% 50%;
@@ -134,33 +151,5 @@ const loginUser = async () => {
   100% {
     background-position: 0% 50%;
   }
-}
-
-ion-button {
-  margin-top: 30px;
-  font-weight: bold;
-  --background: #01829c;
-  --background-hover: #005F73 ;
-  --background-activated: #005F73 ;
-  --color: white;
-  transition: transform 0.2s ease;
-}
-
-.login-btn > * {
-  padding: 20PX;
-}
-
-ion-button:hover {
-  transform: scale(1.03);
-}
-
-.toolbar-custom {
-  --background: #FAF9F6;
-}
-
-.btn-login {
-  --padding-top: 17px;
-  --padding-bottom: 17px;
-  margin-bottom: 15px;
 }
 </style>

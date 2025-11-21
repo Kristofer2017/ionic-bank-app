@@ -32,11 +32,10 @@ export default {
 
     async crearCuentaUsuario(id){
         let nuevaCuenta = {
-            cuenta: this.generarNumeroCuenta(),
+            numero: this.generarNumeroCuenta(),
             tipo: 'Ahorro',
             id_usuario: id
         }
-
         const { sql, params } = query.insertarCuenta(nuevaCuenta);
         await pool.execute(sql, params);
     },

@@ -5,8 +5,8 @@ export default {
         return { sql, params };
     },
     insertarCuenta(cuenta) {
-        const sql = `INSERT INTO Cuenta (cuenta, tipo, id_usuario) VALUES (?,?,?)`;
-        const params = [cuenta.cuenta, cuenta.tipo, cuenta.id_usuario];
+        const sql = `INSERT INTO Cuenta (numero, tipo, id_usuario) VALUES (?,?,?)`;
+        const params = [cuenta.numero, cuenta.tipo, cuenta.id_usuario];
 
         return { sql, params };
     },
@@ -14,6 +14,6 @@ export default {
         return `SELECT * FROM Usuario WHERE user = '${usuario}'`;
     },
     obtenerCuenta(idUsuario) {
-        return `SELECT id, cuenta, balance, tipo FROM Cuenta WHERE id_usuario = '${idUsuario}'`;
+        return `SELECT id, numero, balance, tipo FROM Cuenta WHERE id_usuario = '${idUsuario}'`;
     }
 }

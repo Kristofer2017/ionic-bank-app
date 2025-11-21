@@ -1,6 +1,6 @@
 export default interface Account {
     id: number,
-    cuenta: string,
+    numero: string,
     balance: number,
     tipo: string
 }
