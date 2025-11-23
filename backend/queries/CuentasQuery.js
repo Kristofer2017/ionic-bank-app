@@ -1,5 +1,5 @@
 export default {
-    recargar(monto, id_cuenta) {
+    recargar(id_cuenta, monto) {
         const sql = `UPDATE Cuenta SET balance = balance + ? WHERE id = ?`;
         const params = [monto, id_cuenta];
 

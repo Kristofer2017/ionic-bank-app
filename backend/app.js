@@ -4,6 +4,8 @@ import categorias from './routes/CategoriasRouter.js';
 import empresas from './routes/EmpresasRouter.js';
 import servicios from './routes/ServiciosRouter.js';
 import usuarios from './routes/UsuariosRouter.js';
+import cuentas from './routes/CuentasRouter.js';
+import metodos from './routes/MetodosRouter.js';
 import dotenv from 'dotenv';
 import cookieParser from "cookie-parser";
 
@@ -23,6 +25,8 @@ app.use(categorias);
 app.use(empresas);
 app.use(servicios);
 app.use(usuarios);
+app.use(cuentas);
+app.use(metodos);
 
 app.listen(port, ip, () => {
     console.log(`Server running at http://${ip}:${port}`);

@@ -1,6 +1,7 @@
 import Account from "./Account";
 
 export default interface UserLogged {
+    id: number,
     nombre: string,
     telefono: string,
     email: string,

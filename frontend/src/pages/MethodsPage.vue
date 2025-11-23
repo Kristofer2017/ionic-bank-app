@@ -3,78 +3,114 @@
     <ion-header>
       <ion-toolbar>
         <ion-buttons slot="start">
-          <ion-button @click="props.back()"><ion-icon slot="icon-only" :icon="arrowBack" /></ion-button>
+          <ion-button @click="props.back"><ion-icon slot="icon-only" :icon="arrowBack" /></ion-button>
         </ion-buttons>
         <ion-title>Métodos de pago</ion-title>
       </ion-toolbar>
     </ion-header>
     <ion-content :fullscreen="true" class="payment-wrapper">
-      <section class="header">
-        <h2>Métodos de pago</h2>
-      </section>
       <div class="button-row">
         <ion-button fill="solid" size="small" @click="addPaymentMethod">
-          <IonIcon :icon="addOutline" slot="start" />
-          Agregar método de pago
+          <ion-icon :icon="addOutline" slot="start" />Agregar método de pago
         </ion-button>
       </div>
 
-      <ion-card class="card">
+      <ion-card class="card" v-for="metodo in metodos" :key="metodo.id"
+        :style="{ backgroundColor: palette[(metodo.id-1) % (palette.length)] }">
         <ion-card-header>
-          <ion-card-title class="titulo-carta">Visa ***4645</ion-card-title>
+          <ion-card-title class="titulo-carta">{{ metodo.marca }} ***{{ metodo.ultimos4 }}</ion-card-title>
         </ion-card-header>
         <ion-card-content>
-          <p>Expira 11/27</p>
+          <p>Expira {{ metodo.expiracion }}</p>
+          <p>{{ metodo.titular }}</p>
           <div class="card-actions">
-            <ion-icon :icon="createOutline" @click="editCard" />
-            <ion-icon :icon="trashOutline" @click="deleteCard" />
+            <ion-icon :icon="createOutline" @click="editCard(metodo)" />
+            <ion-icon :icon="trashOutline" @click="confirmDelete(metodo.id)" />
           </div>
         </ion-card-content>
       </ion-card>
     </ion-content>
+    <ion-alert :is-open="mostrarAlert" :buttons="alertButtons" message="¿Estás seguro de eliminar esta tarjeta?" header="Confirmación" />
+    <ion-toast :is-open="mostrarToast" message="Método de pago eliminado" :duration="3000"  @didDismiss="mostrarToast = false" />
   </ion-page>
 </template>
 
 <script setup lang="ts">
-import { IonPage, IonHeader, IonToolbar, IonButtons, IonButton, IonTitle, IonContent, IonIcon, IonCard, IonCardHeader, IonCardTitle, IonCardContent } from '@ionic/vue';
+import { IonPage, IonHeader, IonToolbar, IonTitle, IonButtons, IonButton, IonContent, IonIcon, IonCard, IonCardHeader, IonCardTitle, IonCardContent, IonAlert, IonToast } from '@ionic/vue';
 import { arrowBack, addOutline, createOutline, trashOutline } from 'ionicons/icons';
+import { onMounted, ref, watch } from 'vue';
+import { useUsuarioStore } from '@/stores/usuarioStore';
+import { useMetodoStore } from '@/stores/metodoStore';
 import ModalProps from '@/interface/ModalProps';
 import MethodsAddPage from './MethodsAddPage.vue';
+import UserLogged from '@/interface/UserLogged';
+import MetodoService from '@/api/MetodoService';
+import UserService from '@/api/UserService';
+import MetodoPago from '@/interface/MetodoPago';
 
+const usuarioStore = useUsuarioStore();
+const metodoStore = useMetodoStore();
 const props = defineProps<ModalProps>();
+const metodos = ref<MetodoPago[]>([]);
+const usuario = ref<UserLogged | null>(null);
+const palette = ['#005F73', '#5d0793', '#977901', '#035699'];
+const idEliminar = ref();
+const mostrarAlert = ref(false);
+const mostrarToast = ref(false);
+
+const confirmDelete = (id: number) => {
+  idEliminar.value = id;
+  mostrarAlert.value = true;
+}
+
+const deleteConfirmed = async () => {
+  const eliminado = await MetodoService.elminarMetodo(idEliminar.value);
+  if (eliminado) mostrarToast.value = true;
+  mostrarAlert.value = false;
+}
 
 const addPaymentMethod = () => {
+  metodoStore.setMetodoEditar(null);
   props.nextPage(MethodsAddPage);
 }
 
-const editCard = () => {
-  // lógica para editar
+const editCard = (tarjeta: MetodoPago) => {
+  metodoStore.setMetodoEditar(tarjeta);
+  props.nextPage(MethodsAddPage);
 }
 
-const deleteCard = () => {
-  // lógica para eliminar
+const cargarDatos = async () => {
+  await setAuthUser();
+  metodos.value = await MetodoService.obtenerMetodos(usuario.value!.id);
 }
+
+const setAuthUser = async() => {
+  if (usuarioStore.usuarioAutenticado){
+    usuario.value = usuarioStore.usuarioAutenticado;
+  } else {
+    const loggedUser = await UserService.loggedUser();
+    return loggedUser ? usuario.value = loggedUser : props.back();
+  }
+}
+
+const alertButtons = [
+  { text: 'Cancelar', role: 'cancel', handler: () => { mostrarAlert.value = false }},
+  { text: 'Eliminar', role: 'confirm', handler: async () => { await deleteConfirmed() }}
+];
+
+watch(() => metodoStore.refrescarDatos, async (v) => { 
+  if (v) {
+    await cargarDatos();
+    metodoStore.refrescarDatos = false;
+  }
+});
+
+onMounted(async() => { await cargarDatos() });
 </script>
 
 <style scoped>
 .payment-wrapper {
-  padding: 1.5rem;
-}
-
-.header {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  margin-bottom: 0.75rem;
-}
-
-.header h2 {
-  font-size: 1.8rem;
-  font-family: 'Segoe UI', 'Roboto', sans-serif;
-  font-weight: 600;
-  color: #005F73;
-  margin: 0;
-  text-align: center;
+  --padding-top: 1.5rem;
 }
 
 .button-row {
@@ -86,14 +122,13 @@ const deleteCard = () => {
 }
 
 .button-row ion-button {
-  --color: #ffffff;
-  --border-color: #00abcd;
+  --color: #fff;
   --background: #3A3A3A;
   font-size: 0.85rem;
 }
 
 .card {
-  background-color: #005F73;
+  background-color: #977901;
   color: #FAF9F6;
   border-radius: 12px;
   box-shadow: 0 2
@@ -108,7 +143,7 @@ const deleteCard = () => {
 .card-actions ion-icon {
   font-size: 1.4rem;
   cursor: pointer;
-  color: #94D2BD;
+  color: #dae4e2;
 }
 
 .titulo-carta {

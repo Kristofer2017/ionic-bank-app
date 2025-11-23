@@ -45,25 +45,32 @@
 <script setup lang="ts">
 import { IonPage, IonHeader, IonToolbar, IonTitle, IonContent, IonButtons, IonMenuButton, IonItem, IonLabel, IonList, IonListHeader, IonIcon } from '@ionic/vue';
 import { listCircle } from 'ionicons/icons';
+import { useRouter } from "vue-router";
 import { onMounted, ref } from 'vue';
 import { useUsuarioStore } from '@/stores/usuarioStore';
 import UserService from '@/api/UserService';
 import UserLogged from '@/interface/UserLogged';
+const router = useRouter();
 
 const usuarioStore = useUsuarioStore();
 const usuario = ref<UserLogged | null>(null);
 
 onMounted(async() => {
+  await obtenerUsuarioAut();
+})
+
+const obtenerUsuarioAut = async() => {
   if (usuarioStore.usuarioAutenticado){
     usuario.value = usuarioStore.usuarioAutenticado;
     return;
   }
   const loggedUser = await UserService.loggedUser();
   if (loggedUser) {
-    usuarioStore.usuarioAutenticado = loggedUser;
     usuario.value = loggedUser;
+  } else {
+    router.push('/login');
   }
-})
+}
 </script>
 
 <style scoped>
