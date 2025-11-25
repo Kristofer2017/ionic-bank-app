@@ -6,6 +6,7 @@
           <ion-menu-button color="dark"></ion-menu-button>
         </ion-buttons>
         <ion-title>Inicio</ion-title>
+        <NotificationBell />
       </ion-toolbar>
     </ion-header>
 
@@ -38,6 +39,7 @@
           </ion-label>
         </ion-item>
       </ion-list>
+
     </ion-content>
   </ion-page>
 </template>
@@ -50,8 +52,9 @@ import { onMounted, ref } from 'vue';
 import { useUsuarioStore } from '@/stores/usuarioStore';
 import UserService from '@/api/UserService';
 import UserLogged from '@/interface/UserLogged';
-const router = useRouter();
+import NotificationBell from '@/components/NotificationBell.vue';
 
+const router = useRouter();
 const usuarioStore = useUsuarioStore();
 const usuario = ref<UserLogged | null>(null);
 

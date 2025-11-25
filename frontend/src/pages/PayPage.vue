@@ -164,6 +164,7 @@ h1 {
   overflow-y: hidden;
   scroll-behavior: smooth;
 }
+
 .lista-categorias > div {
   flex: 0 0 auto;
   padding-bottom: 12px;
@@ -176,6 +177,7 @@ h1 {
 .lista-categorias .chip > * {
   color: #FAF9F6;
 }
+
 .todos-los-negocios {
   --padding-start: 0;
   --inner-padding-end: 0;

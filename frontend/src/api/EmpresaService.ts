@@ -22,15 +22,13 @@ const EmpresaService = {
             return [];
         }
     },
-    async obtenerServicios(idEmpresa: number): Promise<Servicio[] | null> {
+    async obtenerServicios(idEmpresa: number): Promise<Servicio[]> {
         try {
             const response = await axios.get(`http://localhost:3000/servicios/get/${idEmpresa}`);
-            const servicios: Servicio[] = response.data;
-
-            return servicios;
+            return response.data as Servicio[];
         } catch (error) {
             console.log(error);
-            return null;
+            return [];
         }
     }
 }
