@@ -15,10 +15,10 @@
           </ion-list-header>
           <div v-if="servicios.length == 0 || pagoManual" class="contenedor">
             <ion-item lines="none">
-              <ion-input type="number" placeholder="Monto a pagar" :value="manualAmount" @ionInput="onManualAmount"></ion-input>
+              <ion-input type="number" placeholder="Monto a pagar" v-model.number="manualAmount"></ion-input>
             </ion-item>
             <ion-item lines="none">
-              <ion-input type="text" placeholder="Concepto"></ion-input>
+              <ion-input type="text" placeholder="Concepto" v-model="manualConcept"></ion-input>
             </ion-item>
           </div>
           <div v-else class="contenedor">
@@ -39,10 +39,12 @@
           </ion-list-header>
           <div class="contenedor" v-if="pagoSaldo">
             <ion-item lines="none">
-              <ion-icon :icon="checkmarkCircle"></ion-icon>
+              <ion-icon 
+                :icon="saldoInsuficiente ? closeCircleOutline : checkmarkCircle"
+                :color="saldoInsuficiente ? 'danger' : 'success'" />
               <ion-label>
                 <h2>Saldo: ${{ usuario?.cuenta.balance }}</h2>
-                <p>Disponible</p>
+                <p>{{ saldoInsuficiente ? 'Insuficiente' : 'Disponible' }}</p>
               </ion-label>
             </ion-item>
           </div>
@@ -60,15 +62,15 @@
         </ion-list>
         <ion-list class="tarjeta">
           <ion-list-header>
-            <ion-label v-if="servicioSelec && metodoSelec">
+            <ion-label v-if="seleccionValida">
               <h2>Detalles del pago</h2><br>
               <p>Nombre del negocio: {{ empresa?.nombre }}</p>
-              <p>Servicio: {{ servicioSelec?.nombre }}</p>
-              <p>Método de pago: {{ metodoSelec?.marca + "***" + metodoSelec?.ultimos4 }}</p>
-              <p>Total a pagar: ${{ servicioSelec?.precio }}</p>
+              <p>Servicio: {{ servicioSelec?.nombre || manualConcept }}</p>
+              <p>Método de pago: {{ metodoSelec ? (metodoSelec.marca + "***" + metodoSelec.ultimos4) : 'Pago con saldo' }}</p>
+              <p>Total a pagar: ${{ servicioSelec?.precio || manualAmount }}</p>
             </ion-label>
             <ion-label v-else>
-              Por favor seleccione un servicio y un método de pago para ver los detalles.
+              Por favor seleccione un servicio y un método de pago para continuar.
             </ion-label>
           </ion-list-header>
           <ion-grid class="botones-formulario">
@@ -84,18 +86,18 @@
 
 <script setup lang="ts">
 import { IonContent, IonPage, IonHeader, IonToolbar, IonTitle, IonButtons, IonButton, IonIcon, IonList, IonListHeader, IonLabel, IonItem, IonToggle, IonInput, IonGrid, IonRow, IonCol } from '@ionic/vue';
-import { arrowBack, listCircle, checkmarkCircle, cardOutline } from 'ionicons/icons';
-import { computed, onMounted, ref } from 'vue';
+import { arrowBack, listCircle, checkmarkCircle, cardOutline, closeCircleOutline  } from 'ionicons/icons';
+import { computed, onMounted, ref, watch } from 'vue';
 import { useEmpresaStore } from '@/stores/empresaStore';
+import { useUsuarioStore } from '@/stores/usuarioStore';
 import ModalProps from '@/interface/ModalProps';
 import EmpresaService from '@/api/EmpresaService';
 import MetodoService from '@/api/MetodoService';
+import UserService from '@/api/UserService';
 import Servicio from '@/interface/Servicio';
 import Empresa from '@/interface/Empresa';
-import UserLogged from '@/interface/UserLogged';
-import { useUsuarioStore } from '@/stores/usuarioStore';
 import MetodoPago from '@/interface/MetodoPago';
-import UserService from '@/api/UserService';
+import UserLogged from '@/interface/UserLogged';
 
 // Store y datos globales
 const props = defineProps<ModalProps>();
@@ -113,32 +115,64 @@ const servicios = ref<Servicio[]>([]);
 const pagoManual = ref(false);
 const pagoSaldo = ref(false);
 const manualAmount = ref<number | null>(null);
+const manualConcept = ref<string | null>(null);
 
-// Variables y funciones para seleccionar valores
+// Variables y funciones para seleccionar
 const servicioSelec = ref<Servicio | null>(null);
 const metodoSelec = ref<MetodoPago | null>(null);
-const seleccionarServicio = (servicio: Servicio) => servicioSelec.value = servicio;
-const seleccionarMetodo = (metodo: MetodoPago) => metodoSelec.value = metodo;
 
-const onManualAmount = (ev: any) => {
-  const v = ev?.detail?.value;
-  manualAmount.value = (v === '' || v == null) ? null : Number(v);
-};
+const seleccionarServicio = (servicio: Servicio) => {
+  pagoManual.value = false;
+  servicioSelec.value = servicio;
+}
+const seleccionarMetodo = (metodo: MetodoPago) => {
+  pagoSaldo.value = false;
+  metodoSelec.value = metodo;
+}
+
+watch(pagoManual, (newVal) => {
+  if (newVal) {
+    // al activar monto manual, quitar selección de servicio
+    servicioSelec.value = null;
+  }
+});
+
+watch(pagoSaldo, (newVal) => {
+  if (newVal) {
+    // al activar pago con saldo, quitar selección de tarjeta
+    metodoSelec.value = null;
+  }
+});
+
+// Validaciones combinadas: selección y saldo
+const seleccionValida = computed(() => {
+  // Debe existir un servicio (o monto manual) y un método (tarjeta seleccionada o pagoSaldo)
+  const hasServiceOrManual = !!(servicioSelec.value || (pagoManual.value && manualAmount.value && manualAmount.value > 0 && manualConcept.value && manualConcept.value.length > 3));
+  const hasPaymentMethod = !!(pagoSaldo.value || metodoSelec.value);
+  return hasServiceOrManual && hasPaymentMethod;
+});
+
+// computed para monto y validación de saldo
+const montoActual = computed(() => {
+  return pagoManual.value ? (manualAmount.value ?? 0) : (servicioSelec.value?.precio ?? 0);
+});
+
+const saldoInsuficiente = computed(() => {
+  if (!pagoSaldo.value) return false;
+  const balance = usuario.value?.cuenta?.balance ?? 0;
+  return montoActual.value > balance;
+});
 
 const isConfirmDisabled = computed(() => {
-  const balance = usuario.value?.cuenta?.balance ?? 0;
+  // Primero validar selección
+  if (!seleccionValida.value) return true;
 
-  // Si se usa saldo y hay servicio seleccionado: deshabilitar si precio > balance
-  if (pagoSaldo.value && servicioSelec.value) {
-    return servicioSelec.value.precio > balance;
+  // Si se usa saldo, validar el balance según el monto (servicio o manual)
+  if (pagoSaldo.value) {
+    return saldoInsuficiente.value;
   }
 
-  // Si se ingresa monto manualmente: deshabilitar si monto ingresado > balance
-  if (pagoManual.value) {
-    const monto = manualAmount.value ?? 0;
-    return monto > balance;
-  }
-
+  // Si es pago con tarjeta no tiene validación de saldo
   return false;
 });
 
@@ -180,8 +214,6 @@ const setAuthUser = async() => {
     return loggedUser ? usuario.value = loggedUser : props.back();
   }
 }
-
-
 
 onMounted(async() => { await cargarDatos() });
 </script>
