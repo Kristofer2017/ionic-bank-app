@@ -1,8 +1,19 @@
 import UserLogged from "@/interface/UserLogged";
 import UserRegister from "@/interface/UserRegister";
 import axios from "axios";
+import { useRouter } from "vue-router";
 
+const router = useRouter();
 axios.defaults.withCredentials = true;
+axios.interceptors.response.use(
+    response => response,
+    error => {
+        if (error.response && error.response.status === 401) {
+            router.push('/login');
+        }
+        return Promise.reject(error);
+    }
+);
 
 const UserService = {
     async login(user: string, password: string): Promise<boolean> {

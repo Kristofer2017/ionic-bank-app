@@ -1,10 +1,10 @@
 import { Router } from "express";
 import controller from '../controller/MetodosController.js';
-//import { verifyToken } from '../middleware/auth.js';
+import { verifyToken } from '../middleware/auth.js';
 
 const router = Router();
 
-router.post('/metodos/add', (req, res) => {
+router.post('/metodos/add', verifyToken, (req, res) => {
     const metodo = req.body;
 
     controller.insertar(metodo).then((result) => {
@@ -14,7 +14,7 @@ router.post('/metodos/add', (req, res) => {
     });
 });
 
-router.get('/metodos/usuario/:id', (req, res) => {
+router.get('/metodos/usuario/:id', verifyToken, (req, res) => {
     const id = req.params.id;
 
     controller.obtenerMetodosUsuario(id).then((result) => {
@@ -24,7 +24,7 @@ router.get('/metodos/usuario/:id', (req, res) => {
     });
 });
 
-router.delete('/metodos/eliminar/:id', (req, res) => {
+router.delete('/metodos/eliminar/:id', verifyToken, (req, res) => {
     const id = req.params.id;
 
     controller.eliminarMetodo(id).then((result) => {
@@ -34,7 +34,7 @@ router.delete('/metodos/eliminar/:id', (req, res) => {
     });
 });
 
-router.put('/metodos/actualizar', (req, res) => {
+router.put('/metodos/actualizar', verifyToken, (req, res) => {
     const metodo = req.body;
 
     controller.actualizarMetodo(metodo).then((result) => {

@@ -14,7 +14,6 @@
           <ion-icon :icon="addOutline" slot="start" />Agregar método de pago
         </ion-button>
       </div>
-
       <ion-card class="card" v-for="metodo in metodos" :key="metodo.id"
         :style="{ backgroundColor: palette[(metodo.id-1) % (palette.length)] }">
         <ion-card-header>
@@ -31,7 +30,7 @@
       </ion-card>
     </ion-content>
     <ion-alert :is-open="mostrarAlert" :buttons="alertButtons" message="¿Estás seguro de eliminar esta tarjeta?" header="Confirmación" />
-    <ion-toast :is-open="mostrarToast" message="Método de pago eliminado" :duration="3000"  @didDismiss="mostrarToast = false" />
+    <ion-toast :is-open="mostrarToast" message="Tarjeta eliminada." :duration="3000"  @didDismiss="mostrarToast = false" />
   </ion-page>
 </template>
 
@@ -39,35 +38,20 @@
 import { IonPage, IonHeader, IonToolbar, IonTitle, IonButtons, IonButton, IonContent, IonIcon, IonCard, IonCardHeader, IonCardTitle, IonCardContent, IonAlert, IonToast } from '@ionic/vue';
 import { arrowBack, addOutline, createOutline, trashOutline } from 'ionicons/icons';
 import { onMounted, ref, watch } from 'vue';
-import { useUsuarioStore } from '@/stores/usuarioStore';
 import { useMetodoStore } from '@/stores/metodoStore';
 import ModalProps from '@/interface/ModalProps';
 import MethodsAddPage from './MethodsAddPage.vue';
-import UserLogged from '@/interface/UserLogged';
 import MetodoService from '@/api/MetodoService';
 import UserService from '@/api/UserService';
 import MetodoPago from '@/interface/MetodoPago';
 
-const usuarioStore = useUsuarioStore();
 const metodoStore = useMetodoStore();
 const props = defineProps<ModalProps>();
 const metodos = ref<MetodoPago[]>([]);
-const usuario = ref<UserLogged | null>(null);
 const palette = ['#005F73', '#5d0793', '#977901', '#035699'];
 const idEliminar = ref();
 const mostrarAlert = ref(false);
 const mostrarToast = ref(false);
-
-const confirmDelete = (id: number) => {
-  idEliminar.value = id;
-  mostrarAlert.value = true;
-}
-
-const deleteConfirmed = async () => {
-  const eliminado = await MetodoService.elminarMetodo(idEliminar.value);
-  if (eliminado) mostrarToast.value = true;
-  mostrarAlert.value = false;
-}
 
 const addPaymentMethod = () => {
   metodoStore.setMetodoEditar(null);
@@ -79,24 +63,31 @@ const editCard = (tarjeta: MetodoPago) => {
   props.nextPage(MethodsAddPage);
 }
 
-const cargarDatos = async () => {
-  await setAuthUser();
-  metodos.value = await MetodoService.obtenerMetodos(usuario.value!.id);
+const confirmDelete = (id: number) => {
+  idEliminar.value = id;
+  mostrarAlert.value = true;
 }
 
-const setAuthUser = async() => {
-  if (usuarioStore.usuarioAutenticado){
-    usuario.value = usuarioStore.usuarioAutenticado;
-  } else {
-    const loggedUser = await UserService.loggedUser();
-    return loggedUser ? usuario.value = loggedUser : props.back();
+const deleteConfirmed = async () => {
+  const eliminado = await MetodoService.elminarMetodo(idEliminar.value);
+  if (eliminado) {
+    mostrarToast.value = true;
+    metodoStore.refrescarDatos = true;
   }
+  mostrarAlert.value = false;
 }
 
 const alertButtons = [
   { text: 'Cancelar', role: 'cancel', handler: () => { mostrarAlert.value = false }},
   { text: 'Eliminar', role: 'confirm', handler: async () => { await deleteConfirmed() }}
 ];
+
+const cargarDatos = async () => {
+  const user = await UserService.loggedUser();
+  if (user) {
+    metodos.value = await MetodoService.obtenerMetodos(user.id);
+  }
+}
 
 watch(() => metodoStore.refrescarDatos, async (v) => { 
   if (v) {

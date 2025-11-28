@@ -11,27 +11,23 @@
     <ion-content>
       <div class="form-container">
         <h2 class="form-title">{{ editando? 'Editar':'Agregar' }} método de pago</h2>
-        <p v-if="editando">Por motivos de seguridad, ingresa el número de tarjeta y CVV.</p>
+        <p v-if="editando">Por seguridad, tendrás que ingresar de nuevo el número de tarjeta y CVV.</p>
         <div class="form-row">
           <ion-label class="label">Nombre del titular</ion-label>
           <ion-input class="input" placeholder="Ej. Juan Pérez" v-model="titular" />
         </div>
-
         <div class="form-row">
           <ion-label class="label">Número de tarjeta</ion-label>
           <ion-input class="input" type="password" placeholder="xxxx-xxxx-xxxx-xxxx" v-model="tarjeta" />
         </div>
-
         <div class="form-row">
           <ion-label class="label">Fecha de expiración</ion-label>
           <ion-input class="input" type="text" placeholder="mm/aa" v-model="expiracion" />
         </div>
-
         <div class="form-row">
           <ion-label class="label">CVV</ion-label>
           <ion-input class="input" type="number" placeholder="xxx" v-model="cvv" />
         </div>
-
         <div class="form-row">
           <ion-label class="label">Marca</ion-label>
           <ion-select class="input" placeholder="Selecciona la marca" v-model="marca">
@@ -41,13 +37,11 @@
             <ion-select-option value="Discover">Discover</ion-select-option>
           </ion-select>
         </div>
-
         <div class="boton-row">
           <ion-button fill="outline" color="medium" @click="props.back">Cancelar</ion-button>
           <ion-button color="primary" @click="guardarTarjeta">{{ editando? 'Actualizar':'Guardar' }}</ion-button>
         </div>
       </div>
-
       <ion-toast :is-open="mostrarToast" :message="mensajeToast" :duration="2000"  @didDismiss="mostrarToast = false" />
       <ion-alert :is-open="mostrarAlert" :message="mensajeAlert" :buttons="alertButtons" header="Información" />
     </ion-content>
@@ -57,11 +51,9 @@
 <script setup lang="ts">
 import { IonPage, IonHeader, IonToolbar, IonTitle, IonButtons, IonButton, IonIcon, IonContent, IonLabel, IonInput, IonSelect, IonSelectOption, IonToast, IonAlert } from '@ionic/vue'
 import { arrowBack } from 'ionicons/icons';
-import { useUsuarioStore } from '@/stores/usuarioStore';
 import { useMetodoStore } from '@/stores/metodoStore';
 import { onMounted, ref } from 'vue';
 import ModalProps from '@/interface/ModalProps';
-import UserLogged from '@/interface/UserLogged';
 import MetodoService from '@/api/MetodoService';
 import UserService from '@/api/UserService';
 import MetodoRegister from '@/interface/MetodoRegister';
@@ -69,9 +61,7 @@ import MetodoPago from '@/interface/MetodoPago';
 
 // Stores y propiedades globales
 const props = defineProps<ModalProps>();
-const usuarioStore = useUsuarioStore();
 const metodoStore = useMetodoStore();
-const usuario = ref<UserLogged | null>(null);
 
 // Inputs del usuario
 const titular = ref("");
@@ -91,14 +81,15 @@ const mostrarAlert = ref(false);
 const mensajeAlert = ref("");
 
 // Validaciones
-const tarjetaValid = () => /^\d{4}-\d{4}-\d{4}-\d{4}$/.test(tarjeta.value);
-const expiracionValid = () => /^(0[1-9]|1[0-2])\/\d{2}$/.test(expiracion.value);
-const cvvValid = () => /^\d{3}$/.test(cvv.value);
-const alertButtons = [{ text: 'Aceptar', handler: () => { setTimeout(() => { props.back() }, 300) }}];
+const tarjetaRegex = /^\d{4}-\d{4}-\d{4}-\d{4}$/;
+const expiracionRegex = /^(0[1-9]|1[0-2])\/\d{2}$/;
+const cvvRegex = /^\d{3}$/;
 
+const tarjetaValid = () => tarjetaRegex.test(tarjeta.value);
+const expiracionValid = () => expiracionRegex.test(expiracion.value);
+const cvvValid = () => cvvRegex.test(cvv.value);
 
 const cargarDatos = async () => {
-  await setAuthUser();
   const tarjetaE = metodoStore.metodoEditar;
   if (tarjetaE) {
     editando.value = true;
@@ -111,7 +102,8 @@ const guardarTarjeta = async () => {
   const error = errorValidacion();
   if (error) { mostrar('toast', error); return; }
 
-  let success;
+  const user = await UserService.loggedUser();
+  if (!user) return props.back();
 
   if (editando.value) {
     let metodoEditar: MetodoPago = {
@@ -122,7 +114,7 @@ const guardarTarjeta = async () => {
       expiracion: expiracion.value
     };
 
-    success = await MetodoService.actualizarMetodo(metodoEditar);
+    const success = await MetodoService.actualizarMetodo(metodoEditar);
     if (success) mostrar('alert', 'La tarjeta fué actualizada con éxito.')
     else mostrar('toast', 'Error al actualizar la tarjeta, inténtalo más tarde.')
 
@@ -132,14 +124,14 @@ const guardarTarjeta = async () => {
       ultimos4: tarjeta.value.split("-").pop()!,
       marca: marca.value,
       expiracion: expiracion.value,
-      id_usuario: usuario.value!.id
+      id_usuario: user.id
     };
 
-    success = await MetodoService.agregarMetodo(metodoRegistrar);
+    const success = await MetodoService.agregarMetodo(metodoRegistrar);
     if (success) mostrar('alert', 'La tarjeta fué rigistrada con éxito.') 
     else mostrar('toast', 'Error al guardar la tarjeta, inténtalo más tarde.')
   }
-    
+  
   metodoStore.refrescarDatos = true;
   limpiarcampos();
 }
@@ -171,16 +163,6 @@ const expiracionValida = (exp: string) => {
   return null;
 }
 
-const mostrar = (tipo: string, mensaje: string) => {
-  if (tipo === "toast") {
-    mensajeToast.value = mensaje;
-    mostrarToast.value = true;
-  } else if (tipo === "alert") {
-    mensajeAlert.value = mensaje;
-    mostrarAlert.value = true;
-  }
-}
-
 const limpiarcampos = () => {
   titular.value = "";
   tarjeta.value = "";
@@ -195,21 +177,21 @@ const poblarCampos = (card: MetodoPago) => {
   marca.value = card.marca;
 }
 
-const setAuthUser = async() => {
-  if (usuarioStore.usuarioAutenticado){
-    usuario.value = usuarioStore.usuarioAutenticado;
-  } else {
-    const loggedUser = await UserService.loggedUser();
-    return loggedUser ? usuario.value = loggedUser : props.back();
+const mostrar = (tipo: string, mensaje: string) => {
+  if (tipo === "toast") {
+    mensajeToast.value = mensaje;
+    mostrarToast.value = true;
+  } else if (tipo === "alert") {
+    mensajeAlert.value = mensaje;
+    mostrarAlert.value = true;
   }
 }
 
+const alertButtons = [{ text: 'Aceptar', handler: () => { setTimeout(() => { props.back() }, 300) }}];
 onMounted(async() => { await cargarDatos() });
 </script>
 
 <style scoped>
-
-
 .form-container {
   margin: 1em;
   background-color: #FFFFFF;
@@ -224,7 +206,7 @@ onMounted(async() => { await cargarDatos() });
   font-family: 'Segoe UI', 'Roboto', sans-serif;
   font-weight: 600;
   color: #005F73;
-  margin-bottom: 2rem;
+  margin-bottom: 1.3rem;
 }
 
 .form-row {
@@ -257,5 +239,10 @@ onMounted(async() => { await cargarDatos() });
   display: flex;
   justify-content: space-between;
   margin-top: 2rem;
+}
+
+p {
+  color: #555;
+  font-size: 15px;
 }
 </style>

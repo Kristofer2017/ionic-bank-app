@@ -1,9 +1,10 @@
 import { Router } from 'express';
 import controller from '../controller/ServiciosController.js';
+import { verifyToken } from '../middleware/auth.js';
 
 const router = Router();
 
-router.get('/servicios/get/:id', (req, res) => {
+router.get('/servicios/get/:id', verifyToken, (req, res) => {
     const { id } = req.params;
 
     controller.obtenerPorIdEmpresa(id).then((result) => {

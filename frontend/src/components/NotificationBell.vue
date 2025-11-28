@@ -1,31 +1,25 @@
 <template>
-  <ion-button id="notif-btn" fill="clear" slot="end">
+  <ion-button id="notif-btn" fill="clear" slot="end" @click="openPopover">
     <ion-icon :icon="notificationsOutline"></ion-icon>
   </ion-button>
 
-  <ion-popover trigger="notif-btn" trigger-action="click">
-    <ion-content>
-      <ion-button fill="clear" @click="markAllAsRead">
-        Marcar todo como visto
-      </ion-button>
-
-      <ion-list>
-        <ion-item v-for="n in notifs" :key="n.id" :button="true" detail="false" @click.stop="toggleRead(n.id)">
+  <ion-popover ref="popover" @willPresent="onOpen" @didDismiss="onClose" side="bottom" alignment="end">
+    <ion-content v-if="notificaciones.length == 0" class="ion-padding">
+        <ion-label>No hay notificaciones.</ion-label>
+    </ion-content>
+    <ion-content v-else>
+      <ion-button fill="clear" @click="markAllAsRead">Marcar todo como visto</ion-button>
+      <ion-list>        
+        <ion-item v-for="n in notificaciones" :key="n.id" :button="true" @click="toggleRead(n.id!)" lines="full">
           <div class="unread-indicator-wrapper" slot="start">
             <div class="unread-indicator" :class="{ read: n.visto }"></div>
           </div>
-
           <ion-label>
-            <span :class="{ 'titulo-unread': !n.visto, 'titulo-read': n.visto }">
-              {{ n.titulo }}
-            </span><br>
-            <ion-note color="medium" class="ion-text-wrap">
-              {{ n.descripcion }}
-            </ion-note>
+            <span :class="n.visto ? 'titulo-read' : 'titulo-unread'">{{ n.titulo }}</span><br>
+            <ion-note color="medium" class="ion-text-wrap">{{ n.descripcion }}</ion-note>
           </ion-label>
-
           <div class="metadata-end-wrapper" slot="end">
-            <ion-note color="medium">{{ n.fecha }}</ion-note>
+            <ion-note color="medium">Hoy</ion-note>
           </div>
         </ion-item>
       </ion-list>
@@ -33,50 +27,39 @@
   </ion-popover>
 </template>
 
-<script setup>
-import {
-  IonButton,
-  IonIcon,
-  IonPopover,
-  IonList,
-  IonItem,
-  IonLabel,
-  IonNote,
-  IonContent
-} from '@ionic/vue'
+<script setup lang="ts">
+import { IonButton, IonIcon, IonPopover, IonList, IonItem, IonLabel, IonNote, IonContent } from '@ionic/vue'
+import { notificationsOutline } from 'ionicons/icons';
+import { ref } from 'vue';
+import Notification from "@/interface/Notification";
+import NotificationService from '@/api/NotificationService';
+import UserService from '@/api/UserService';
 
-import {
-  notificationsOutline,
-} from 'ionicons/icons'
+const notificaciones = ref<Notification[]>([]);
+const popover = ref<InstanceType<typeof IonPopover>>();
 
-import { ref } from 'vue'
-
-const notifs = ref([
-  {
-    id: 1,
-    titulo: "Steam",
-    subtitulo: "Game Store Sale",
-    descripcion: "Ese juego que dejaste en tu lista está con descuento.",
-    fecha: "Ayer",
-    visto: false
-  },
-  {
-    id: 2,
-    titulo: "Facebook",
-    subtitulo: "Nuevo comentario",
-    descripcion: "Alguien comentó tu publicación.",
-    fecha: "Hoy",
-    visto: true
-  }
-])
-
-const markAllAsRead = () => {
-  notifs.value = notifs.value.map(n => ({ ...n, visto: true }))
+const openPopover = (e: Event) => {
+  popover.value?.$el.present(e);
 }
 
-const toggleRead = (id) => {
-  const n = notifs.value.find(n => n.id === id)
+const markAllAsRead = () => {
+  notificaciones.value = notificaciones.value.map(n => ({ ...n, visto: true }))
+}
+
+const toggleRead = (id: number) => {
+  const n = notificaciones.value.find(n => n.id === id)
   if (n) n.visto = !n.visto
+}
+
+const onOpen = async () => { 
+  const user = await UserService.loggedUser();
+  if (user){
+    notificaciones.value = await NotificationService.obtenerNotificaciones(user.id);
+  }
+};
+
+const onClose = () => {
+  notificaciones.value = [];
 }
 </script>
 
@@ -98,5 +81,9 @@ const toggleRead = (id) => {
 
 .titulo-read {
   font-weight: 400;
+}
+
+ion-popover {
+  --width: 350px;
 }
 </style>

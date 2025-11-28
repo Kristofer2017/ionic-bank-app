@@ -6,6 +6,7 @@
           <ion-menu-button color="dark"></ion-menu-button>
         </ion-buttons>
         <ion-title>Transferir</ion-title>
+        <NotificationBell />
       </ion-toolbar>
     </ion-header>
 
@@ -41,6 +42,7 @@ import { repeatOutline, bagAddOutline, chevronForward } from 'ionicons/icons';
 import { useModal } from '@/composable/useModal';
 import TopupPage from './TopupPage.vue';
 import SendPage from './SendPage.vue';
+import NotificationBell from '@/components/NotificationBell.vue';
 
 const { modal, nav, onWillPresent, open } = useModal();
 </script>

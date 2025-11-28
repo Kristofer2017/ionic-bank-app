@@ -1,6 +1,19 @@
 import MetodoPago from "@/interface/MetodoPago";
 import MetodoRegister from "@/interface/MetodoRegister";
 import axios from "axios";
+import { useRouter } from "vue-router";
+
+const router = useRouter();
+axios.defaults.withCredentials = true;
+axios.interceptors.response.use(
+    response => response,
+    error => {
+        if (error.response && error.response.status === 401) {
+            router.push('/login');
+        }
+        return Promise.reject(error);
+    }
+);
 
 const MetodoService = {
     async obtenerMetodos(id_usurio: number): Promise<MetodoPago[]> {

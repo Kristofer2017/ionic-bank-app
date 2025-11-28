@@ -31,12 +31,15 @@
         <ion-list-header class="titulo">
           <ion-label><h1>Historial de Transacciones</h1></ion-label>
         </ion-list-header>
-        <ion-item lines="none">
-          <ion-icon :icon="listCircle" slot="start" size="large"></ion-icon>
+        <ion-item lines="none" v-for="transaccion in transacciones" :key="transaccion.id">
+          <ion-icon :icon="listCircle" size="large"/>
           <ion-label>
-            <h2>Transferencia</h2>
-            <p>Se enviaron $3 a Kevin Gutierrez</p>
+            <h3>{{ transaccion.tipo }}</h3>
+            <p>{{ transaccion.detalle }}</p>
           </ion-label>
+        </ion-item>
+        <ion-item v-if="transacciones.length == 0" lines="none">
+          <h2>No hay transacciones.</h2>
         </ion-item>
       </ion-list>
 
@@ -45,35 +48,25 @@
 </template>
 
 <script setup lang="ts">
-import { IonPage, IonHeader, IonToolbar, IonTitle, IonContent, IonButtons, IonMenuButton, IonItem, IonLabel, IonList, IonListHeader, IonIcon } from '@ionic/vue';
+import { IonPage, IonHeader, IonToolbar, IonTitle, IonContent, IonButtons, IonMenuButton, IonItem, IonLabel, IonList, IonListHeader, IonIcon, onIonViewWillEnter } from '@ionic/vue';
 import { listCircle } from 'ionicons/icons';
-import { useRouter } from "vue-router";
-import { onMounted, ref } from 'vue';
-import { useUsuarioStore } from '@/stores/usuarioStore';
+import { ref } from 'vue';
 import UserService from '@/api/UserService';
 import UserLogged from '@/interface/UserLogged';
 import NotificationBell from '@/components/NotificationBell.vue';
+import Transaction from '@/interface/Transaction';
+import TransactionService from '@/api/TransactionService';
 
-const router = useRouter();
-const usuarioStore = useUsuarioStore();
-const usuario = ref<UserLogged | null>(null);
+const usuario = ref<UserLogged>();
+const transacciones = ref<Transaction[]>([]);
 
-onMounted(async() => {
-  await obtenerUsuarioAut();
+onIonViewWillEnter(async () => {
+  const user = await UserService.loggedUser();
+  if (user) {
+    usuario.value = user;
+    transacciones.value = await TransactionService.obtenerTransac(user.id);
+  }
 })
-
-const obtenerUsuarioAut = async() => {
-  if (usuarioStore.usuarioAutenticado){
-    usuario.value = usuarioStore.usuarioAutenticado;
-    return;
-  }
-  const loggedUser = await UserService.loggedUser();
-  if (loggedUser) {
-    usuario.value = loggedUser;
-  } else {
-    router.push('/login');
-  }
-}
 </script>
 
 <style scoped>
@@ -94,12 +87,17 @@ h2 {
   color: #555;
 }
 
+h3 {
+  font-size: 15px;
+}
+
 p {
   color: #555;
 }
 
 ion-icon {
   color: #1f95ad;
+  padding-right: 15px;
 }
 
 ion-item {

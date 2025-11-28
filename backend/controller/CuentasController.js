@@ -7,5 +7,11 @@ export default {
         await pool.execute(sql, params);
 
         return { message: 'Saldo recargado correctamente' };
+    },
+    async debitar(id_cuenta, monto) {
+        const { sql, params } = query.debitar(id_cuenta, monto);
+        await pool.execute(sql, params);
+
+        return { message: 'Saldo debitado correctamente' };
     }
 }

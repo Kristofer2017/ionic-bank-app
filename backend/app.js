@@ -6,6 +6,8 @@ import servicios from './routes/ServiciosRouter.js';
 import usuarios from './routes/UsuariosRouter.js';
 import cuentas from './routes/CuentasRouter.js';
 import metodos from './routes/MetodosRouter.js';
+import transacciones from './routes/TransacRouter.js';
+import notificaciones from './routes/NotificacionRouter.js';
 import dotenv from 'dotenv';
 import cookieParser from "cookie-parser";
 
@@ -27,6 +29,8 @@ app.use(servicios);
 app.use(usuarios);
 app.use(cuentas);
 app.use(metodos);
+app.use(transacciones);
+app.use(notificaciones);
 
 app.listen(port, ip, () => {
     console.log(`Server running at http://${ip}:${port}`);

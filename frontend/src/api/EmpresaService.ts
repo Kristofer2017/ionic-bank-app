@@ -2,6 +2,19 @@ import Empresa from "@/interface/Empresa";
 import Categoria from "@/interface/Categoria"
 import Servicio from "@/interface/Servicio";
 import axios from "axios";
+import { useRouter } from "vue-router";
+
+const router = useRouter();
+axios.defaults.withCredentials = true;
+axios.interceptors.response.use(
+    response => response,
+    error => {
+        if (error.response && error.response.status === 401) {
+            router.push('/login');
+        }
+        return Promise.reject(error);
+    }
+);
 
 const EmpresaService = {
     async obtenerEmpresas(): Promise<Empresa[]> {

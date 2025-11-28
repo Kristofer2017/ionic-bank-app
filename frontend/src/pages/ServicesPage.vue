@@ -6,6 +6,7 @@
           <ion-menu-button color="dark"></ion-menu-button>
         </ion-buttons>
         <ion-title>Servicios</ion-title>
+        <NotificationBell />
       </ion-toolbar>
     </ion-header>
 
@@ -41,6 +42,7 @@ import { receiptOutline, cardOutline, chevronForward } from 'ionicons/icons';
 import { useModal } from '@/composable/useModal';
 import MethodsPage from './MethodsPage.vue';
 import PayPage from './PayPage.vue';
+import NotificationBell from '@/components/NotificationBell.vue';
 
 const { modal, nav, onWillPresent, open } = useModal();
 </script>

@@ -78,7 +78,7 @@ const mensajeAlert = ref("");
 const alertButtons = [{
     text: 'Aceptar',
     handler: () => {
-      setTimeout(() => { router.push('/login') }, 900);
+      setTimeout(() => { router.push('/login') }, 300);
     }
 }];
 

@@ -41,18 +41,18 @@
         </ion-item>
         <ion-grid class="botones-formulario">
           <ion-row>
-            <ion-col><ion-button expand="full" class="btn-cancelar" @click="cancelar">Cancelar</ion-button></ion-col>
+            <ion-col><ion-button expand="full" class="btn-cancelar" @click="props.back">Cancelar</ion-button></ion-col>
             <ion-col><ion-button expand="full" class="btn-continuar" @click="continuar">Continuar</ion-button></ion-col>
           </ion-row>
         </ion-grid>
       </div>
-      <ion-toast :is-open="isOpenToast" :message="msgToast" :duration="5000" @didDismiss="setOpenToast(false)" />
+      <ion-toast :is-open="mostrarToast" :message="mensajeToast" :duration="4000" @didDismiss="mostrarToast = false" />
     </ion-content>
   </ion-page>
 </template>
 
 <script setup lang="ts">
-import { modalController, IonHeader, IonToolbar, IonTitle, IonButtons, IonButton, IonContent, IonPage, IonList, IonItem, IonLabel, IonSearchbar, IonGrid, IonRow, IonCol, IonChip, IonIcon, IonToast } from '@ionic/vue';
+import { IonHeader, IonToolbar, IonTitle, IonButtons, IonButton, IonContent, IonPage, IonList, IonItem, IonLabel, IonSearchbar, IonGrid, IonRow, IonCol, IonChip, IonIcon, IonToast } from '@ionic/vue';
 import { closeCircle, checkmarkCircle, arrowBack } from 'ionicons/icons';
 import { ref, onMounted, computed } from 'vue';
 import { useEmpresaStore } from '@/stores/empresaStore';
@@ -69,21 +69,13 @@ const categoriaSeleccionada = ref<string | null>(null);
 const props = defineProps<ModalProps>();
 const empresaStore = useEmpresaStore();
 const textoBusqueda = ref<string>('');
-const isOpenToast = ref(false);
-const msgToast = ref("");
+const mostrarToast = ref(false);
+const mensajeToast = ref("");
 
-onMounted(async () => {
-  if(empresaStore.empresas.length > 0 && empresaStore.categorias.length > 0){
-    empresas.value = empresaStore.empresas;
-    categorias.value = empresaStore.categorias;
-    return;
-  }
-  const dataEmpresas = await EmpresaService.obtenerEmpresas();
-  const dataCategorias = await EmpresaService.obtenerCategorias();
-
-  if (dataEmpresas.length > 0) empresas.value = dataEmpresas;
-  if (dataCategorias.length > 0) categorias.value = dataCategorias;
-});
+const cargarDatos = async () => {
+  empresas.value = await EmpresaService.obtenerEmpresas();
+  categorias.value = await EmpresaService.obtenerCategorias();
+}
 
 const empresasFiltradas = computed(() => {
   let resultado = empresas.value;
@@ -113,19 +105,19 @@ const categoriasFiltradas = computed(() => {
 
 const continuar = () => {
   if (!empresaSeleccionada.value) {
-    msgToast.value = "Debe seleccionar una empresa antes de continuar";
-    setOpenToast(true);
+    mensajeToast.value = "Debe seleccionar una empresa antes de continuar";
+    mostrarToast.value = true;
     return;
   }
   empresaStore.setEmpresaSelec(empresaSeleccionada.value);
   props.nextPage(PayServicePage);
 }
 
-const cancelar = () => modalController.dismiss();
 const limpiarFiltrado = () => categoriaSeleccionada.value = null;
 const seleccionarCategoria = (categoria: string) => categoriaSeleccionada.value = categoria;
 const seleccionarEmpresa = (empresa: Empresa) => empresaSeleccionada.value = empresa;
-const setOpenToast = (state: boolean) => isOpenToast.value = state;
+
+onMounted(async() => { await cargarDatos() });
 </script>
 
 <style scoped>
