@@ -1,6 +1,6 @@
 import Account from "./Account";
 
-export default interface UserLogged {
+export default interface User {
     id: number,
     nombre: string,
     telefono: string,

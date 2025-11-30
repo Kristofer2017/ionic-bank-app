@@ -17,8 +17,8 @@
         </ion-list-header>
 
         <ion-item lines="full" @click="open(SendPage)">
-          <ion-icon :icon="repeatOutline" slot="start"></ion-icon>
-          <ion-label>Transferir o enviar</ion-label>
+          <ion-icon :icon="arrowRedoOutline" slot="start"></ion-icon>
+          <ion-label>Enviar fondos</ion-label>
           <ion-icon :icon="chevronForward" slot="end"></ion-icon>
         </ion-item>
 
@@ -38,7 +38,7 @@
 
 <script setup lang="ts">
 import { IonPage, IonHeader, IonToolbar, IonTitle, IonContent, IonButtons, IonMenuButton, IonItem, IonIcon, IonLabel, IonList, IonListHeader, IonModal, IonNav } from '@ionic/vue';
-import { repeatOutline, bagAddOutline, chevronForward } from 'ionicons/icons';
+import { arrowRedoOutline, bagAddOutline, chevronForward } from 'ionicons/icons';
 import { useModal } from '@/composable/useModal';
 import TopupPage from './TopupPage.vue';
 import SendPage from './SendPage.vue';

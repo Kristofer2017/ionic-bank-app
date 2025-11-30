@@ -46,6 +46,16 @@
             <!-- Información de tarjeta -->
             <div v-if="metodoRecarga === 'nueva-tarjeta'">
               <ion-item>
+                <ion-label position="stacked">Marca</ion-label>
+                <ion-select class="input" placeholder="Selecciona la marca" v-model="marca">
+                  <ion-select-option value="Visa">Visa</ion-select-option>
+                  <ion-select-option value="Mastercard">Mastercard</ion-select-option>
+                  <ion-select-option value="American Express">American Express</ion-select-option>
+                  <ion-select-option value="Discover">Discover</ion-select-option>
+                </ion-select>
+              </ion-item>
+
+              <ion-item>
                 <ion-label position="stacked">Número de tarjeta</ion-label>
                 <ion-input 
                   type="text" 
@@ -71,10 +81,12 @@
                   v-model="cvv"
                 ></ion-input>
               </ion-item>
-            </div>
 
+              <ion-label position="stacked"><span style="color: red;">*</span> La tarjeta no será guardada, para poder hacerlo, por favor ve a Servicios > Métodos de Pago.</ion-label>
+            </div>
+            
             <!-- Seleccionar tarjeta existente -->
-             <div v-if="metodoRecarga == 'tarjeta-existente'">
+            <div v-if="metodoRecarga == 'tarjeta-existente'">
               <ion-item>
                 <ion-label position="stacked">Para agregar o editar tus métodos de pago, ve a Servicios > Métodos de Pago.</ion-label>
                 <br>
@@ -87,7 +99,6 @@
              </div>
 
           </ion-list>
-
           <!-- Botones de acción -->
           <ion-button 
             expand="block" 
@@ -146,13 +157,17 @@ import { onMounted, ref } from 'vue';
 import ModalProps from '@/interface/ModalProps';
 import UserService from '@/api/UserService';
 import MetodoService from '@/api/MetodoService';
-import UserLogged from '@/interface/UserLogged';
+import User from '@/interface/User';
 import MetodoPago from '@/interface/MetodoPago';
+import CuentaService from '@/api/CuentaService';
+import NotificationService from '@/api/NotificationService';
+import TransactionService from '@/api/TransactionService';
 
 const props = defineProps<ModalProps>();
 
 const metodoRecarga = ref('nueva-tarjeta');
 const monto = ref('');
+const marca = ref('');
 const numeroTarjeta = ref('');
 const fechaExpiracion = ref('');
 const cvv = ref('');
@@ -160,7 +175,7 @@ const cuentaOrigen = ref('');
 const montosRapidos = [20, 50, 100, 200];
 const tarjetaSelec = ref('');
 
-const usuario = ref<UserLogged>();
+const usuario = ref<User>();
 const tarjetas = ref<MetodoPago[]>([]);
 
 const mostrarToast = ref(false);
@@ -187,23 +202,69 @@ const seleccionarMontoRapido = (montoSeleccionado: number) => {
   monto.value = montoSeleccionado.toString();
 };
 
-const procesarRecarga = () => {
+const procesarRecarga = async () => {
+  if (!usuario.value || !monto.value) return;
+  const user = usuario.value;
+  const montoRecarga = parseFloat(monto.value);
+
   const error = errorValidacion();
   if (error) {
     mensajeToast.value = error;
     mostrarToast.value = true;
     return;
   }
+
+  // Variables que nos servirán para la transacción
+  const fecha = new Date().toLocaleDateString();
+  const saldoActual = user.cuenta.balance;
+  let nuevoSaldo = saldoActual;
+  let success = true;
+  const tarjeta = tarjetaSelec.value || `${marca.value} ***${numeroTarjeta.value.split("-").pop()}`;
+
+  success = await CuentaService.recargar(usuario.value.cuenta.id, montoRecarga);
+
+  if (!success) {
+    mensajeToast.value = "Error al procesar la recarga.";
+    mostrarToast.value = true;
+    return;
+  }
+  nuevoSaldo = Number(saldoActual) + Number(montoRecarga);
+
+  // Almacenar la noficicación
+  success = await NotificationService.nuevaNotificacion({
+    titulo: 'Se recargó tu cuenta',
+    descripcion: `Se recargaron $${montoRecarga} al saldo de tu cuenta personal. Para ver más detalles revisa tu historial de transacciones.`,
+    id_usuario: user.id
+  });
   
-  console.log(tarjetaSelec.value);
-  
-  //alert(`Recarga de $${monto.value} procesada exitosamente`);
+  // Almacenar la transacción
+  success = await TransactionService.nuevaTransac({
+    tipo: 'Recarga de Saldo',
+    titulo: `Se recargaron $${montoRecarga} al saldo en tu cuenta`,
+    detalle: `Se realizó el depósito de fondos por $${montoRecarga} al saldo de tu cuenta personal usando la tarjeta ${tarjeta} en la fecha ${fecha}.`,
+    monto: montoRecarga,
+    metodo_pago: tarjeta,
+    emisor: `Cuenta No. ${user.cuenta.numero}`,
+    receptor: `Cuenta No. ${user.cuenta.numero}`,
+    saldo_anterior: saldoActual,
+    nuevo_saldo: nuevoSaldo,
+    id_cuenta: user.cuenta.id,
+  });
+
+  // Feedback al usuario
+  if (success) {
+    mensajeAlert.value = `Recarga de $${montoRecarga} realizda con éxito.`;
+    mostrarAlert.value = true;
+  } else {
+    mensajeToast.value = "Error al procesar la recarga.";
+    mostrarToast.value = true;
+  }
 };
 
 const errorValidacion = () => {
   if (!monto.value) return "Ingresa el monto a recargar.";
   if (parseFloat(monto.value) <= 0) return "Monto Inválido.";
-  if (metodoRecarga.value == 'nueva-tarjeta' && (!numeroTarjeta.value || !fechaExpiracion.value || !cvv.value))
+  if (metodoRecarga.value == 'nueva-tarjeta' && (!marca.value || !numeroTarjeta.value || !fechaExpiracion.value || !cvv.value))
     return "Ingresa los datos de la tarjeta."
   if (metodoRecarga.value == 'tarjeta-existente' && !tarjetaSelec.value)
     return "Selecciona una tarjeta del menú."
@@ -212,6 +273,7 @@ const errorValidacion = () => {
 
 const cancelar = () => {
   monto.value = '';
+  marca.value = '';
   numeroTarjeta.value = '';
   fechaExpiracion.value = '';
   cvv.value = '';

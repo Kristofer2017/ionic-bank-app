@@ -56,8 +56,8 @@ import { onMounted, ref } from 'vue';
 import ModalProps from '@/interface/ModalProps';
 import MetodoService from '@/api/MetodoService';
 import UserService from '@/api/UserService';
-import MetodoRegister from '@/interface/MetodoRegister';
 import MetodoPago from '@/interface/MetodoPago';
+import NotificationService from '@/api/NotificationService';
 
 // Stores y propiedades globales
 const props = defineProps<ModalProps>();
@@ -104,33 +104,40 @@ const guardarTarjeta = async () => {
 
   const user = await UserService.loggedUser();
   if (!user) return props.back();
+  let success = true;
+  const last4 = tarjeta.value.split("-").pop()!;
 
   if (editando.value) {
-    let metodoEditar: MetodoPago = {
+    success = await MetodoService.actualizarMetodo({
       id: tarjetaEditar.value!.id,
       titular: titular.value,
-      ultimos4: tarjeta.value.split("-").pop()!,
+      ultimos4: last4,
       marca: marca.value,
       expiracion: expiracion.value
-    };
-
-    const success = await MetodoService.actualizarMetodo(metodoEditar);
-    if (success) mostrar('alert', 'La tarjeta fué actualizada con éxito.')
-    else mostrar('toast', 'Error al actualizar la tarjeta, inténtalo más tarde.')
-
+    });
   } else {
-    let metodoRegistrar: MetodoRegister = {
+    success = await MetodoService.agregarMetodo({
       titular: titular.value,
-      ultimos4: tarjeta.value.split("-").pop()!,
+      ultimos4: last4,
       marca: marca.value,
       expiracion: expiracion.value,
       id_usuario: user.id
-    };
-
-    const success = await MetodoService.agregarMetodo(metodoRegistrar);
-    if (success) mostrar('alert', 'La tarjeta fué rigistrada con éxito.') 
-    else mostrar('toast', 'Error al guardar la tarjeta, inténtalo más tarde.')
+    });
   }
+
+  if (!editando.value) {
+    // Enviar una notificación al ciente sólo cuando se agregue una nueva tarjeta
+    success = await NotificationService.nuevaNotificacion({
+      titulo: 'Registro de Tarjeta',
+      descripcion: `Se ha registrado la tarjeta ${marca.value} ***${last4} a nombre de ${titular.value}.`,
+      id_usuario: user.id
+    });
+  }
+
+  if (!success) { mostrar('toast', 'Hubo un error, inténtalo más tarde.'); return; }
+
+  if (editando.value) mostrar('alert', 'La tarjeta fué actualizada con éxito.');
+  else mostrar('alert', 'La tarjeta fué rigistrada con éxito.');
   
   metodoStore.refrescarDatos = true;
   limpiarcampos();

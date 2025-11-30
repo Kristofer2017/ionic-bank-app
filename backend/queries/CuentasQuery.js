@@ -11,4 +11,10 @@ export default {
 
         return { sql, params };
     },
+    obtenerCuenta(numeroCuenta) {
+        return `SELECT * FROM Cuenta WHERE numero = '${numeroCuenta}'`;
+    },
+    obtenerUsuario(idUsuario) {
+        return `SELECT id, nombre, telefono, email, dui, user FROM Usuario WHERE id = ${idUsuario}`;
+    }
 }

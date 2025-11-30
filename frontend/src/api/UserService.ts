@@ -1,4 +1,4 @@
-import UserLogged from "@/interface/UserLogged";
+import User from "@/interface/User";
 import UserRegister from "@/interface/UserRegister";
 import axios from "axios";
 import { useRouter } from "vue-router";
@@ -41,10 +41,10 @@ const UserService = {
             return false;
         }
     },
-    async loggedUser(): Promise<UserLogged | null> {
+    async loggedUser(): Promise<User | null> {
         try {
             const resp = await axios.get('http://localhost:3000/usuario/me');
-            return resp.data as UserLogged;
+            return resp.data as User;
         } catch {
             return null;
         }

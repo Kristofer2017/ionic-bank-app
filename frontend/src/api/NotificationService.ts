@@ -32,7 +32,25 @@ const NotificationService = {
             console.log(error);
             return false;
         }
-    }
+    },
+    async marcarUnaVisto(id_notificacion: number, visto: boolean): Promise<boolean> {
+        try {
+            await axios.patch('http://localhost:3000/notificacion/actualizar-una', { id_notificacion, visto });
+            return true;
+        } catch (error) {
+            console.log(error);
+            return false;
+        }
+    },
+    async marcarTodasVisto(id_usuario: number): Promise<boolean> {
+        try {
+            await axios.patch('http://localhost:3000/notificacion/actualizar-todas', { id_usuario, visto: true });
+            return true;
+        } catch (error) {
+            console.log(error);
+            return false;
+        }
+    },
 }
 
 export default NotificationService;

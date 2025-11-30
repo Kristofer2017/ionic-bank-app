@@ -7,6 +7,16 @@ export default {
         const [ result ] = await pool.query(sql, params);
         return result.insertId;
     },
+    async actualizarUna(idNoti, estado) {
+        const { sql, params } = query.actualizarVistoUna(idNoti, estado);
+        const [ result ] = await pool.query(sql, params);
+        return result.insertId;
+    },
+    async actualizarTodas(idUsuario, estado) {
+        const { sql, params } = query.actualizarVistoTodos(idUsuario, estado);
+        const [ result ] = await pool.query(sql, params);
+        return result.insertId;
+    },
     async obtenerNotificaciones(idUsuario) {
         const sql = query.obtenerNotificaciones(idUsuario);
         const [ result ] = await pool.query(sql);

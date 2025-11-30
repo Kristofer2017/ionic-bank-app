@@ -14,7 +14,7 @@
       <ion-list class="tarjeta">
         <ion-list-header>
           <ion-label>
-            <h1>Bienvenido/a, {{ usuario?.nombre }}</h1>
+            <h1>Bienvenido/a, {{ usuario?.nombre.split(' ')[0] }}.</h1>
             <h2>Número de cuenta: {{ usuario?.cuenta.numero }}</h2>
           </ion-label>
         </ion-list-header>
@@ -33,9 +33,9 @@
         </ion-list-header>
         <ion-item lines="none" v-for="transaccion in transacciones" :key="transaccion.id">
           <ion-icon :icon="listCircle" size="large"/>
-          <ion-label>
+          <ion-label @click="seleccionarTransaccion(transaccion)">
             <h3>{{ transaccion.tipo }}</h3>
-            <p>{{ transaccion.detalle }}</p>
+            <p>{{ transaccion.titulo }}</p>
           </ion-label>
         </ion-item>
         <ion-item v-if="transacciones.length == 0" lines="none">
@@ -43,29 +43,75 @@
         </ion-item>
       </ion-list>
 
+      <ion-modal ref="modal" :initial-breakpoint="0.70" :breakpoints="[0, 0.70]">
+        <ion-content class="ion-padding">
+          <ion-list>
+            <ion-item lines="none">
+              <ion-label><h3>Detalles de la transacción</h3></ion-label>
+            </ion-item>
+            <ion-item lines="none">
+              <ion-label><p>Tipo: {{ selectedTransac?.tipo }}</p></ion-label>
+            </ion-item>
+            <ion-item lines="none">
+              <ion-label><p>Detalle: {{ selectedTransac?.detalle }}</p></ion-label>
+            </ion-item>
+            <ion-item lines="none">
+              <ion-label><p>Monto: ${{ selectedTransac?.monto }}</p></ion-label>
+            </ion-item>
+            <ion-item lines="none">
+              <ion-label><p>Método de Pago: {{ selectedTransac?.metodo_pago }}</p></ion-label>
+            </ion-item>
+            <ion-item lines="none">
+              <ion-label><p>Emisor de transacción: {{ selectedTransac?.emisor }}</p></ion-label>
+            </ion-item>
+            <ion-item lines="none">
+              <ion-label><p>Receptor de fondos: {{ selectedTransac?.receptor }}</p></ion-label>
+            </ion-item>
+            <ion-item lines="none">
+              <ion-label><p>Saldo Anterior: ${{ selectedTransac?.saldo_anterior }}</p></ion-label>
+            </ion-item>
+            <ion-item lines="none">
+              <ion-label><p>Nuevo Saldo: ${{ selectedTransac?.nuevo_saldo }}</p></ion-label>
+            </ion-item>
+            <ion-item lines="none">
+              <ion-label><p>Fecha y hora: {{ new Date(selectedTransac?.fecha!).toLocaleString() }}</p></ion-label>
+            </ion-item>
+            <ion-item lines="none">
+              <ion-label><p>Estado: {{ selectedTransac?.estado }}</p></ion-label>
+            </ion-item>
+          </ion-list>
+        </ion-content>
+      </ion-modal>
     </ion-content>
   </ion-page>
 </template>
 
 <script setup lang="ts">
-import { IonPage, IonHeader, IonToolbar, IonTitle, IonContent, IonButtons, IonMenuButton, IonItem, IonLabel, IonList, IonListHeader, IonIcon, onIonViewWillEnter } from '@ionic/vue';
+import { IonPage, IonHeader, IonToolbar, IonTitle, IonContent, IonButtons, IonMenuButton, IonItem, IonLabel, IonList, IonListHeader, IonIcon,onIonViewWillEnter, IonModal } from '@ionic/vue';
 import { listCircle } from 'ionicons/icons';
 import { ref } from 'vue';
 import UserService from '@/api/UserService';
-import UserLogged from '@/interface/UserLogged';
+import User from '@/interface/User';
 import NotificationBell from '@/components/NotificationBell.vue';
 import Transaction from '@/interface/Transaction';
 import TransactionService from '@/api/TransactionService';
 
-const usuario = ref<UserLogged>();
+const usuario = ref<User>();
 const transacciones = ref<Transaction[]>([]);
+const selectedTransac = ref<Transaction | null>(null);
+const modal = ref();
+
+const seleccionarTransaccion = (transaccion: Transaction) => {
+  selectedTransac.value = transaccion;
+  modal.value.$el.present();
+}
 
 onIonViewWillEnter(async () => {
   const user = await UserService.loggedUser();
   if (user) {
     usuario.value = user;
     transacciones.value = await TransactionService.obtenerTransac(user.id);
-  }
+  }  
 })
 </script>
 

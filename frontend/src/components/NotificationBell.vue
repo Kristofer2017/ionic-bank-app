@@ -10,16 +10,17 @@
     <ion-content v-else>
       <ion-button fill="clear" @click="markAllAsRead">Marcar todo como visto</ion-button>
       <ion-list>        
-        <ion-item v-for="n in notificaciones" :key="n.id" :button="true" @click="toggleRead(n.id!)" lines="full">
+        <ion-item v-for="notificacion in notificaciones" :key="notificacion.id" :button="true" @click="toggleRead(notificacion.id!)" lines="full">
           <div class="unread-indicator-wrapper" slot="start">
-            <div class="unread-indicator" :class="{ read: n.visto }"></div>
+            <div class="unread-indicator" :class="{ read: notificacion.visto }"></div>
           </div>
           <ion-label>
-            <span :class="n.visto ? 'titulo-read' : 'titulo-unread'">{{ n.titulo }}</span><br>
-            <ion-note color="medium" class="ion-text-wrap">{{ n.descripcion }}</ion-note>
+            <span :class="notificacion.visto ? 'titulo-read' : 'titulo-unread'">{{ notificacion.titulo }}</span><br>
+            <ion-note color="medium" class="ion-text-wrap">{{ notificacion.descripcion }}</ion-note>
           </ion-label>
           <div class="metadata-end-wrapper" slot="end">
-            <ion-note color="medium">Hoy</ion-note>
+            <ion-note color="medium">{{ formatearDia(notificacion.fecha!) }}</ion-note>
+            <ion-note color="medium">{{ formatearHora(notificacion.fecha!) }}</ion-note>
           </div>
         </ion-item>
       </ion-list>
@@ -42,15 +43,25 @@ const openPopover = (e: Event) => {
   popover.value?.$el.present(e);
 }
 
-const markAllAsRead = () => {
-  notificaciones.value = notificaciones.value.map(n => ({ ...n, visto: true }))
+// Marca una notificación como visto/no visto
+const toggleRead = async (id_notificacion: number) => {
+  const notificacion = notificaciones.value.find(n => n.id === id_notificacion);
+  if (notificacion) {
+    const success = await NotificationService.marcarUnaVisto(id_notificacion, !notificacion.visto);
+    if (success) notificacion.visto = !notificacion.visto;
+  }
 }
 
-const toggleRead = (id: number) => {
-  const n = notificaciones.value.find(n => n.id === id)
-  if (n) n.visto = !n.visto
+// Marca todas las notificaciones como visto
+const markAllAsRead = async () => {
+  const user = await UserService.loggedUser();
+  if (user) {
+    const success = await NotificationService.marcarTodasVisto(user.id);
+    if (success) notificaciones.value.forEach(n => n.visto = true);
+  }
 }
 
+// Carga las notificaciones del usuario al abrir el popover
 const onOpen = async () => { 
   const user = await UserService.loggedUser();
   if (user){
@@ -58,8 +69,48 @@ const onOpen = async () => {
   }
 };
 
+// Limpia las notifiaciones al cerrar
 const onClose = () => {
   notificaciones.value = [];
+  popover.value?.$el.dismiss();
+}
+
+// Funciones auxiliares para formatear fecha y hora
+function formatearDia(fechaStr: string): string {
+  const fecha = new Date(fechaStr);
+  const hoy = new Date();
+
+  const inicioHoy = new Date(hoy.getFullYear(), hoy.getMonth(), hoy.getDate());
+  const inicioFecha = new Date(fecha.getFullYear(), fecha.getMonth(), fecha.getDate());
+
+  const diffMs = inicioHoy.getTime() - inicioFecha.getTime();
+  const diffDias = diffMs / (1000 * 60 * 60 * 24);
+
+  if (diffDias === 0) return 'Hoy';
+  if (diffDias === 1) return 'Ayer';
+
+  // Día de la semana
+  const dias = ['Dom','Lun','Mar','Mie','Jue','Vier','Sab'];
+  if (diffDias < 7) return dias[fecha.getDay()];
+
+  // Fecha vieja → dd/mm/aaaa
+  const d = fecha.getDate().toString().padStart(2, '0');
+  const m = (fecha.getMonth() + 1).toString().padStart(2, '0');
+  const a = fecha.getFullYear();
+  return `${d}/${m}/${a}`;
+}
+
+function formatearHora(fechaStr: string): string {
+  const fecha = new Date(fechaStr);
+
+  let horas = fecha.getHours();
+  const minutos = fecha.getMinutes().toString().padStart(2, '0');
+
+  const ampm = horas >= 12 ? 'PM' : 'AM';
+  horas = horas % 12;
+  if (horas === 0) horas = 12;
+
+  return `${horas}:${minutos} ${ampm}`;
 }
 </script>
 
@@ -85,5 +136,11 @@ const onClose = () => {
 
 ion-popover {
   --width: 350px;
+}
+.metadata-end-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: end;
+  gap: 10px;
 }
 </style>

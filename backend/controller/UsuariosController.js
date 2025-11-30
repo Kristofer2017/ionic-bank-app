@@ -13,7 +13,7 @@ export default {
             const { sql, params } = query.insertar(usuario);
             const [usuario_result] = await pool.execute(sql, params);
             
-            this.crearCuentaUsuario(usuario_result.insertId);
+            this.crearCuentaUsuario(usuario_result.insertId, usuario.tipo);
             
             return { message: "Usuario y Cuenta creados exitosamente." };
         } catch (error) {
@@ -30,10 +30,10 @@ export default {
         }        
     },
 
-    async crearCuentaUsuario(id){
+    async crearCuentaUsuario(id, tipoCuenta){
         let nuevaCuenta = {
             numero: this.generarNumeroCuenta(),
-            tipo: 'Ahorro',
+            tipo: tipoCuenta,
             id_usuario: id
         }
         const { sql, params } = query.insertarCuenta(nuevaCuenta);

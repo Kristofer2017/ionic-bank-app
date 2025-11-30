@@ -27,6 +27,13 @@
             placeholder="00000000-0" />
         </ion-item>
         <ion-item class="input-item">
+          <ion-select label="Selecciona el tipo de cuenta" v-model="tipo">
+            <ion-select-option value="Ahorro">Ahorro</ion-select-option>
+            <ion-select-option value="Corriente">Corriente</ion-select-option>
+            <ion-select-option value="Planillera">Planillera</ion-select-option>
+          </ion-select>
+        </ion-item>
+        <ion-item class="input-item">
           <ion-input v-model="username" label="Usuario" label-placement="floating" type="text"
             placeholder="nombre.apellido" />
         </ion-item>
@@ -44,7 +51,7 @@
 </template>
 
 <script setup lang="ts">
-import { IonPage, IonHeader, IonToolbar, IonTitle, IonInput, IonItem, IonButton, IonLabel, IonToast, IonAlert } from "@ionic/vue";
+import { IonPage, IonHeader, IonToolbar, IonTitle, IonInput, IonItem, IonButton, IonLabel, IonToast, IonAlert, IonSelect, IonSelectOption } from "@ionic/vue";
 import { useRouter } from "vue-router";
 import { ref } from "vue";
 import UserService from "@/api/UserService";
@@ -54,6 +61,7 @@ const name = ref("");
 const phone = ref("");
 const email = ref("");
 const dui = ref("");
+const tipo = ref("");
 const username = ref("");
 const password = ref("");
 
@@ -85,31 +93,26 @@ const alertButtons = [{
 const registerUser = async () => {
   let error = errorValidacion();
 
-  if (error) {
-    mostrar('toast', error);
-    return;
-  }
+  if (error) { mostrar('toast', error); return; }
 
   error = await UserService.register({
     nombre: name.value,
     telefono: phone.value,
     email: email.value,
     dui: dui.value,
+    tipo: tipo.value,
     user: username.value,
     password: password.value
   });
 
-  if (error) {
-    mostrar('toast', error);
-    return;
-  }
+  if (error) { mostrar('toast', error); return; }
 
   mostrar('alert', 'Registro Exitoso. Por favor inicie sesión.')
   limpiarcampos();
 }
 
 const errorValidacion = () => {
-  if (!name.value || !phone.value || !email.value || !dui.value || !username.value || !password.value)
+  if (!name.value || !phone.value || !email.value || !dui.value || !tipo.value || !username.value || !password.value)
     return "Por favor, complete todos los campos antes de continuar.";
   if (!phoneValid()) return "Teléfono inválido. Use el formato solicitado.";
   if (!emailValid()) return "Por favor, ingresa un correo válido.";
@@ -123,6 +126,7 @@ const limpiarcampos = () => {
   phone.value = "";
   email.value = "";
   dui.value = "";
+  tipo.value = "";
   username.value = "";
   password.value = "";
 }
@@ -134,7 +138,7 @@ const limpiarcampos = () => {
   display: flex;
   justify-content: center;
   align-items: flex-start;
-  padding-top: 3.6em;
+  padding-top: 3.4em;
   background: linear-gradient(135deg, #005F73, #0487a1, #53c3da);
   background-size: 150% 150%;
   animation: gradientShift 8s ease infinite;
@@ -159,10 +163,11 @@ const limpiarcampos = () => {
 .login-card p {
   font-size: 0.9rem;
   color: #666;
-  margin-bottom: 20px;
+  margin-top: 10px;
+  margin-bottom: 15px;
 }
 
-.login-card ion-label {
+.login-card > ion-label {
   text-decoration: underline;
   color: #005F73;
 }
